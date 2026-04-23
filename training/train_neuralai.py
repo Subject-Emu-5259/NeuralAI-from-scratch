@@ -138,6 +138,7 @@ def main():
         quantization_config=bnb_config,
         device_map="auto",
         trust_remote_code=True,
+        attn_implementation="eager",
     )
     
     # Disable KV cache for training
