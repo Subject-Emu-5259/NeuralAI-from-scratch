@@ -143,6 +143,9 @@ def main():
     
     # Disable KV cache for training
     model.config.use_cache = False
+    # Fix for transformers 5.x SDPA attention mask bug
+    if hasattr(model, "gt_store"):
+        model.gt_store = False
     
     # Prepare for LoRA
     model = prepare_model_for_kbit_training(model)
