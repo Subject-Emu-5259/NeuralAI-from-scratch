@@ -117,7 +117,7 @@ def main():
     print(f"   Loaded {len(samples)} samples")
     
     # Model config
-    MODEL_NAME = "SmolLM2-360M-Instruct"
+    MODEL_NAME = "HuggingFaceTB/SmolLM2-360M-Instruct"
     print(f"\n🤖 Loading model: {MODEL_NAME}")
     
     # Load tokenizer
