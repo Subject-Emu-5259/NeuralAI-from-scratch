@@ -140,6 +140,9 @@ def main():
         trust_remote_code=True,
     )
     
+    # Disable KV cache for training
+    model.config.use_cache = False
+    
     # Prepare for LoRA
     model = prepare_model_for_kbit_training(model)
     
