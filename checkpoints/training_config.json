@@ -1,17 +1,29 @@
 {
+  "_comment": "NeuralAI Training Configuration v2.0 - From-Scratch GPT + QLoRA Fine-Tuning Pipeline",
+  "version": "2.0.0",
+  "project": "NeuralAI-from-scratch",
+
   "model": {
-    "base_model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    "base_model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+    "model_type": "causal_lm",
+    "architecture": "GPT-style Transformer (from-scratch PyTorch)",
     "quantization": {
       "load_in_4bit": true,
       "bnb_4bit_quant_type": "nf4",
-      "bnb_4bit_compute_dtype": "float16",
+      "bnb_4bit_compute_dtype": "bfloat16",
       "bnb_4bit_use_double_quant": true
-    }
+    },
+    "torch_dtype": "float16",
+    "device_map": "auto",
+    "trust_remote_code": false
   },
+
   "lora": {
     "r": 16,
     "lora_alpha": 32,
     "lora_dropout": 0.05,
+    "bias": "none",
+    "task_type": "CAUSAL_LM",
     "target_modules": [
       "q_proj",
       "k_proj",
@@ -21,25 +33,134 @@
       "up_proj",
       "down_proj"
     ],
-    "bias": "none",
-    "task_type": "CAUSAL_LM"
+    "modules_to_save": null,
+    "use_rslora": false
   },
+
   "training": {
+    "output_dir": "./checkpoints",
     "num_train_epochs": 3,
     "per_device_train_batch_size": 4,
+    "per_device_eval_batch_size": 4,
     "gradient_accumulation_steps": 4,
-    "learning_rate": 0.0002,
-    "fp16": true,
-    "logging_steps": 10,
-    "save_steps": 100,
-    "max_seq_length": 512,
+    "gradient_checkpointing": true,
+    "learning_rate": 2e-4,
+    "weight_decay": 0.01,
+    "max_grad_norm": 1.0,
     "warmup_ratio": 0.1,
-    "lr_scheduler_type": "cosine"
+    "lr_scheduler_type": "cosine",
+    "fp16": false,
+    "bf16": true,
+    "optim": "paged_adamw_32bit",
+    "logging_steps": 10,
+    "eval_steps": 50,
+    "save_steps": 100,
+    "save_total_limit": 3,
+    "load_best_model_at_end": true,
+    "evaluation_strategy": "steps",
+    "report_to": "none",
+    "seed": 42,
+    "dataloader_num_workers": 2,
+    "remove_unused_columns": false,
+    "group_by_length": true
   },
+
   "data": {
     "train_file": "./data/train.jsonl",
     "val_file": "./data/val.jsonl",
     "text_column": "text",
-    "chat_template": "chatml"
+    "chat_template": "chatml",
+    "max_seq_length": 2048,
+    "packing": false,
+    "dataset_num_proc": 4
+  },
+
+  "model_configs": {
+    "_comment": "From-scratch GPT tier configs (no HuggingFace, pure PyTorch)",
+    "nano": {
+      "n_layer": 2,
+      "n_head": 2,
+      "n_embd": 64,
+      "context_length": 128,
+      "params": "~2M",
+      "vram": "<512MB",
+      "use_case": "Testing / CI"
+    },
+    "4gb": {
+      "n_layer": 4,
+      "n_head": 4,
+      "n_embd": 256,
+      "context_length": 256,
+      "params": "~8M",
+      "vram": "<2GB",
+      "use_case": "CPU / 4GB RAM laptop"
+    },
+    "small": {
+      "n_layer": 6,
+      "n_head": 6,
+      "n_embd": 384,
+      "context_length": 512,
+      "params": "~30M",
+      "vram": "~4GB",
+      "use_case": "Colab T4 / single GPU"
+    },
+    "medium": {
+      "n_layer": 12,
+      "n_head": 12,
+      "n_embd": 768,
+      "context_length": 1024,
+      "params": "~124M",
+      "vram": "~8GB",
+      "use_case": "GPT-2 equivalent"
+    },
+    "large": {
+      "n_layer": 24,
+      "n_head": 16,
+      "n_embd": 1024,
+      "context_length": 2048,
+      "params": "~345M",
+      "vram": "~24GB",
+      "use_case": "GPT-2 Medium equivalent"
+    }
+  },
+
+  "generation": {
+    "max_new_tokens": 512,
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "top_k": 50,
+    "repetition_penalty": 1.2,
+    "do_sample": true,
+    "use_kv_cache": true,
+    "streaming": true
+  },
+
+  "features": {
+    "flash_attention": true,
+    "rope_embeddings": true,
+    "kv_cache": true,
+    "gradient_checkpointing": true,
+    "swiglu_ffn": true,
+    "weight_tying": true,
+    "int8_inference": true,
+    "streaming_generation": true,
+    "web_ui": true,
+    "colab_notebook": true
+  },
+
+  "paths": {
+    "checkpoints_dir": "./checkpoints",
+    "data_dir": "./data",
+    "logs_dir": "./logs",
+    "from_scratch_dir": "./from-scratch",
+    "colab_notebook": "./NeuralAI_Colab_Training.ipynb"
+  },
+
+  "deployment": {
+    "push_to_hub": false,
+    "hub_model_id": "Subject-Emu-5259/NeuralAI",
+    "hub_private": true,
+    "merge_adapter_on_save": false,
+    "export_onnx": false
   }
 }
