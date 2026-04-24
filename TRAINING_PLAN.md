@@ -1,27 +1,29 @@
-# NovaAI Custom Model Training Plan
+# NeuralAI Custom Model Training Plan
 
 ## Overview
-**Goal:** Create a custom "NovaAI" language model fine-tuned for chat and assistant tasks.
+**Goal:** Create a custom "NeuralAI" language model fine-tuned for chat and assistant tasks.
 
 ## Hardware Assessment
 - **Local:** 4GB RAM, 3 CPU cores, **NO GPU** ❌
 - **Solution:** Use cloud training (Google Colab free tier or RunPod)
 
-## Model Selection: TinyLlama 1.1B
+## Model Selection: SmolLM2-360M-Instruct
 
-### Why TinyLlama?
-| Criteria | TinyLlama 1.1B | Phi-2 2.7B | Gemma 2B |
-|----------|---------------|------------|----------|
-| **RAM (inference)** | ~2GB | ~5GB | ~4GB |
-| **Training time** | Fast | Medium | Medium |
-| **Performance** | Good for chat | Excellent | Very good |
-| **Our hardware fit** | ✅ Perfect | ⚠️ Tight | ⚠️ Tight |
+### Why SmolLM2?
+| Criteria | SmolLM2-360M | TinyLlama 1.1B | Phi-2 2.7B |
+|----------|-------------|-----------------|------------|
+| **Parameters** | 360M | 1.1B | 2.7B |
+| **RAM (inference)** | ~1GB | ~2GB | ~5GB |
+| **Training time** | Fastest | Fast | Medium |
+| **Performance** | Excellent for size | Good | Excellent |
+| **Our hardware fit** | ✅ Perfect | ✅ Good | ⚠️ Tight |
 
 ### Key Specs
-- **Parameters:** 1.1 billion
-- **Architecture:** Llama-2 style
+- **Parameters:** 360 million
+- **Architecture:** SmolLM2 (modern, efficient)
 - **Context:** 2048 tokens
 - **License:** Apache 2.0 (free commercial use)
+- **Special:** Chat-finetuned variant available
 
 ## Training Method: QLoRA (Quantized Low-Rank Adaptation)
 
@@ -33,7 +35,7 @@
 
 ### Configuration
 ```yaml
-base_model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+base_model: HuggingFaceTB/SmolLM2-360M-Instruct
 quantization: 4-bit (NF4)
 lora_rank: 16
 lora_alpha: 32
@@ -48,8 +50,8 @@ max_length: 512
 
 ### Phase 1: General Assistant
 - OpenAssistant conversations
-- Alpaca dataset
-- Custom NovaAI prompts
+- Custom NeuralAI prompts
+- Chat format data
 
 ### Phase 2: Domain Specialization
 - User uploaded documents
@@ -67,7 +69,7 @@ max_length: 512
 2. Enable GPU (T4 free tier)
 3. Run training script
 4. Save model to HuggingFace
-5. Deploy to NovaAI server
+5. Deploy to NeuralAI server
 
 ### Option B: RunPod (Pay-as-you-go)
 - **GPU:** RTX 4080 ($0.74/hr)
@@ -97,16 +99,16 @@ max_length: 512
 
 ### Model Switch Implementation
 - Add `/api/model` endpoint
-- Support: `groq`, `novai`, `local`
+- Support: `groq`, `neuralai`, `local`
 - UI: Model selector in header
 
 ## Timeline
 
 | Week | Task | Status |
 |------|------|--------|
-| 1 | Set up training infrastructure | ⏳ In Progress |
-| 2 | Collect training data | Not Started |
-| 3 | Train base model (Colab) | Not Started |
+| 1 | Set up training infrastructure | ✅ Complete |
+| 2 | Collect training data | ✅ In Progress |
+| 3 | Train base model (Colab) | ⏳ In Progress |
 | 4 | Evaluate and iterate | Not Started |
 | 5 | Deploy to production | Not Started |
 
@@ -116,9 +118,18 @@ max_length: 512
 - **Accuracy:** Pass eval suite (10+ questions)
 - **Safety:** No harmful outputs
 
+## Features Implemented
+- ✅ LR scheduler with warmup
+- ✅ Validation split (20%)
+- ✅ Perplexity metrics
+- ✅ Gradient clipping
+- ✅ InstructionDataset class
+- ✅ QLoRA fine-tuning
+- ✅ Float16 model loading (avoids bitsandbytes CUDA issues)
+
 ## Next Actions
 1. ✅ Add model switch UI
-2. ⏳ Create training script
+2. ✅ Create training script (train_neuralai.py)
 3. ⏳ Prepare training data
 4. ⏳ Run training on Colab
 5. ⏳ Deploy trained model
