@@ -1,11 +1,26 @@
-__pycache__/
-chroma_db/*.bin
-chroma_db/*.sqlite3
-uploads/*.pdf
-uploads/*.docx
-uploads/*.txt
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Data (regenerate locally)
 chroma_db/
 uploads/
-__pycache__/
+*.sqlite3
+*.bin
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+
+# Node (if any)
+node_modules/
+npm-debug.log
