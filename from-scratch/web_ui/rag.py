@@ -3,21 +3,19 @@
 NeuralAI — RAG Module
 Embedding + retrieval for document Q&A.
 """
-import os, hashlib, json
+import os, hashlib
 from pathlib import Path
 import chromadb
 from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 from sentence_transformers import SentenceTransformer
 import pypdf, docx
 
-# Paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 CHROMA_DIR = os.path.join(BASE_DIR, "chroma_db")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(CHROMA_DIR, exist_ok=True)
 
-# Embedding model
 _embed_model = None
 _chroma = None
 
@@ -45,7 +43,7 @@ def extract_text(filepath: str) -> str:
                 t = page.extract_text()
                 if t:
                     text += t + "\n\n"
-        except Exception as e:
+        except Exception:
             return f"[PDF error: {e}]"
 
     elif ext in (".docx", ".doc"):
@@ -54,7 +52,7 @@ def extract_text(filepath: str) -> str:
             for para in doc.paragraphs:
                 if para.text.strip():
                     text += para.text + "\n"
-        except Exception as e:
+        except Exception:
             return f"[DOCX error: {e}]"
 
     elif ext == ".txt":
@@ -66,7 +64,7 @@ def extract_text(filepath: str) -> str:
             text = f.read()
 
     else:
-        return f"[Unsupported file type: {ext}]"
+        return f"[Unsupported: {ext}]"
 
     return text.strip()
 
@@ -88,7 +86,6 @@ def index_document(filepath: str, collection_name: str = "documents") -> dict:
     filename = os.path.basename(filepath)
     file_id = hashlib.sha256(filename.encode()).hexdigest()[:16]
 
-    # Extract & chunk
     text = extract_text(filepath)
     if not text:
         return {"chunks": 0, "error": "No text extracted"}
@@ -97,11 +94,9 @@ def index_document(filepath: str, collection_name: str = "documents") -> dict:
     if not chunks:
         return {"chunks": 0, "error": "No chunks generated"}
 
-    # Embed
     embedder = get_embedder()
     embeddings = embedder.encode(chunks, show_progress_bar=False).tolist()
 
-    # Store in Chroma
     ids = [f"{file_id}_{i}" for i in range(len(chunks))]
     metadatas = [{"source": filename, "chunk_idx": i} for i in range(len(chunks))]
 
@@ -149,3 +144,24 @@ def query_documents(query: str, collection_name: str = "documents", top_k: int =
                 "chunk": meta.get("chunk_idx", 0) + 1
             })
     return docs
+
+# ── Rebuild registry from disk ─────────────────────────────────
+def rebuild_index_registry(collection_name: str = "documents") -> dict:
+    """Scan chroma_db for orphaned files not tracked in INDEXED_FILES.json"""
+    chroma = get_chroma()
+    try:
+        col = chroma.get_or_create_collection(
+            name=collection_name,
+            embedding_function=DefaultEmbeddingFunction()
+        )
+    except Exception:
+        return {"added": 0, "sources": []}
+
+    all_data = col.get()
+    sources = set()
+    for meta in (all_data.get("metadatas") or []):
+        src = meta.get("source") if meta else None
+        if src:
+            sources.add(src)
+
+    return {"found": list(sources), "count": len(sources)}
