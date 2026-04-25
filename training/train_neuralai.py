@@ -127,8 +127,8 @@ def main():
     # Load model in float16 (no quantization - avoids bitsandbytes CUDA issues)
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
-        device_map="auto",
-        torch_dtype=torch.float16,
+        device_map="auto" if device == "cuda" else None,
+        torch_dtype=torch.float16 if device == "cuda" else torch.float32,
         attn_implementation="eager",
     )
     
