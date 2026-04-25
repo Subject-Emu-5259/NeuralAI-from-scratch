@@ -157,7 +157,9 @@ def main():
     # Prepare dataset
     def format_chat(example):
         """Format messages into chat template."""
-        messages = example.get("messages", [])
+        messages = example.get("messages", []) or []
+        if not messages:
+            return {"text": ""}
         text = ""
         for msg in messages:
             role = msg["role"]
