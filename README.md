@@ -13,3 +13,16 @@ NeuralAI is a fine-tuned SmolLM2-360M-Instruct model optimized for efficient, or
 - [ ] **Phase 2**: Implement RLHF (Reinforcement Learning from Human Feedback) for safety and alignment.
 - [ ] **Phase 3**: Develop a specialized coding-only derivative model.
 - [ ] **Phase 4**: Deploy as a lightweight local assistant with a custom Web UI.
+
+
+## 🚀 Latest Progress (Update)
+- **Base Model**: Switched to `SmolLM2-360M-Instruct` for superior reasoning and speed.
+- **Advanced Fine-Tuning**: Completed training on 2,000 high-quality samples from the `ultrachat_200k` dataset.
+- **Optimizations**: QLoRA (4-bit) and Flash Attention (SDPA) implemented for Tesla T4.
+- **Targeting**: Expanded LoRA modules to all linear layers.
+
+## 🗺️ Roadmap
+- [ ] **Phase 1**: Expand training to 10k+ samples for deeper domain expertise.
+- [ ] **Phase 2**: Implement RLHF (Reinforcement Learning from Human Feedback).
+- [ ] **Phase 3**: Develop a specialized coding-only derivative model.
+- [ ] **Phase 4**: Deploy as a lightweight local assistant with a custom Web UI.
