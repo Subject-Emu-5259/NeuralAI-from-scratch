@@ -9,28 +9,49 @@ const charCount = document.getElementById('charCount');
 const modelSelect = document.getElementById('modelSelect');
 const newChatBtn = document.getElementById('newChatBtn');
 const clearBtn = document.getElementById('clearBtn');
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsPanel = document.getElementById('settingsPanel');
+const settingsClose = document.getElementById('settingsClose');
 const sidebar = document.getElementById('sidebar');
 const sidebarToggle = document.getElementById('sidebarToggle');
 
 let conversation = [];
 let isStreaming = false;
 
-// Auto-resize textarea
+// ─── Settings Panel ────────────────────────────────────────
+settingsBtn.addEventListener('click', () => {
+  settingsPanel.classList.add('open');
+  settingsPanel.style.display = 'flex';
+});
+settingsClose.addEventListener('click', () => {
+  settingsPanel.classList.remove('open');
+  settingsPanel.style.display = 'none';
+});
+// Close on backdrop click (main area)
+document.addEventListener('click', (e) => {
+  if (settingsPanel.classList.contains('open') &&
+      !settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
+    settingsPanel.classList.remove('open');
+    settingsPanel.style.display = 'none';
+  }
+  if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+    sidebar.classList.remove('open');
+  }
+});
+
+// ─── Input ─────────────────────────────────────────────────
 chatInput.addEventListener('input', () => {
   chatInput.style.height = 'auto';
   chatInput.style.height = Math.min(chatInput.scrollHeight, 160) + 'px';
   charCount.textContent = chatInput.value.length;
   sendBtn.disabled = chatInput.value.trim() === '' || isStreaming;
 });
-
-// Send on Enter (Shift+Enter for newline)
 chatInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
     if (!sendBtn.disabled) sendMessage();
   }
 });
-
 sendBtn.addEventListener('click', () => { if (!sendBtn.disabled) sendMessage(); });
 
 // Quick prompts
@@ -61,13 +82,6 @@ clearBtn.addEventListener('click', () => {
 // Sidebar toggle (mobile)
 sidebarToggle.addEventListener('click', () => {
   sidebar.classList.toggle('open');
-});
-
-// Close sidebar on backdrop click
-document.addEventListener('click', (e) => {
-  if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
-    sidebar.classList.remove('open');
-  }
 });
 
 // ─── Send Message ───────────────────────────────────────────
