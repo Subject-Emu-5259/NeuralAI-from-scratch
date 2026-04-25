@@ -202,7 +202,7 @@ def main():
         save_total_limit=2,
         report_to="none",
         remove_unused_columns=False,
-        gradient_checkpointing=True,
+        gradient_checkpointing=False,
     )
     
     # Trainer
