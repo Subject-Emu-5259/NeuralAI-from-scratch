@@ -4,16 +4,14 @@ NeuralAI — Flask Web UI Backend
 Serves the NeuralAI chat interface with local model inference.
 """
 import os
-import sys
 import json
 import torch
 from flask import Flask, render_template, request, jsonify, Response, send_from_directory
-from datetime import datetime
 
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.environ.get("MODEL_PATH", "/home/workspace/Projects/NeuralAI/checkpoints/final_model")
+MODEL_PATH = os.environ.get("MODEL_PATH", os.path.join(BASE_DIR, "..", "checkpoints", "final_model"))
 MODEL_NAME = os.environ.get("MODEL_NAME", "HuggingFaceTB/SmolLM2-360M-Instruct")
 
 model = None
@@ -75,36 +73,45 @@ def chat():
 
     def generate():
         try:
-            # Build prompt from conversation history
-            prompt_text = ""
-            last_user_msg = ""
-            
+            # ── Build prompt from conversation history ──────────────────
+            # Format: "Instruction: ...\nResponse: ..." matching training data
+            prompt_parts = []
             for msg in messages:
                 role = msg.get("role", "user")
                 content = msg.get("content", "")
                 if role == "system":
-                    prompt_text += f"<|system|>\n{content}</s>\n"
+                    # Skip system in instruction format, prepend to final prompt
+                    pass
                 elif role == "user":
-                    prompt_text += f"<|user|>\n{content}</s>\n"
-                    last_user_msg = content
+                    prompt_parts.append(f"Instruction: {content}")
                 elif role == "assistant":
-                    prompt_text += f"<|assistant|>\n{content}</s>\n"
+                    prompt_parts.append(f"Response: {content}")
 
-            # Use last user message or single prompt
-            if last_user_msg:
-                user_content = last_user_msg
+            # Get the last user message for generation
+            if messages and messages[-1].get("role") == "user":
+                last_user = messages[-1].get("content", "")
             elif prompt_only:
-                user_content = prompt_only
+                last_user = prompt_only
             else:
                 yield f"data: {json.dumps({'error': 'No message content'})}\n\n"
                 yield "data: [DONE]\n\n"
                 return
 
-            full_prompt = f"{prompt_text}<|assistant|>\n"
+            # Build final prompt: all prior exchanges + current instruction
+            full_prompt = "\n".join(prompt_parts)
+            if full_prompt:
+                full_prompt += f"\nInstruction: {last_user}\nResponse:"
+            else:
+                full_prompt = f"Instruction: {last_user}\nResponse:"
+
+            # Tokenize
             inputs = tokenizer(full_prompt, return_tensors="pt", truncation=True, max_length=512)
             if device == "cuda":
                 inputs = {k: v.to(device) for k, v in inputs.items()}
 
+            prompt_len = len(inputs["input_ids"][0])
+
+            # Generate
             with torch.no_grad():
                 output = model.generate(
                     **inputs,
@@ -114,9 +121,22 @@ def chat():
                     pad_token_id=tokenizer.eos_token_id,
                 )
 
-            response = tokenizer.decode(output[0], skip_special_tokens=True)
-            response = response[len(full_prompt):].strip()
+            # Decode full output
+            full_response = tokenizer.decode(output[0], skip_special_tokens=True)
 
+            # Extract ONLY the new response after "Response:"
+            # Find the last "Response:" marker and take everything after it
+            if "Response:" in full_response:
+                response = full_response.split("Response:")[-1].strip()
+            else:
+                # Fallback: remove the prompt portion
+                response = full_response[prompt_len:].strip()
+
+            # Clean up any leftover "Instruction:" artifacts
+            if "Instruction:" in response:
+                response = response.split("Instruction:")[0].strip()
+
+            # Stream word by word
             for word in response.split():
                 yield f"data: {json.dumps({'content': word})}\n\n"
                 import time; time.sleep(0.02)
@@ -144,6 +164,6 @@ def static_files(filename):
     return send_from_directory(BASE_DIR, filename)
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get("PORT", 5000))
     print(f"NeuralAI starting on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
