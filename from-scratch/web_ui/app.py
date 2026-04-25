@@ -29,11 +29,11 @@ def load_model():
         print(f"[NeuralAI] Loading fine-tuned model from {MODEL_PATH}")
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
-            tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+            tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, add_prefix_space=True)
             tokenizer.pad_token = tokenizer.eos_token
             model = AutoModelForCausalLM.from_pretrained(
                 MODEL_PATH,
-                device_map="auto" if device == "cuda" else None,
+                device_map="auto" if device == "cuda" else None
                 torch_dtype=torch.float16 if device == "cuda" else torch.float32,
             )
             print("[NeuralAI] Fine-tuned model loaded successfully")
@@ -43,7 +43,7 @@ def load_model():
 
     print(f"[NeuralAI] Loading base model: {MODEL_NAME}")
     from transformers import AutoModelForCausalLM, AutoTokenizer
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, add_prefix_space=True)
     tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
@@ -98,7 +98,7 @@ def chat():
                     pad_token_id=tokenizer.eos_token_id,
                 )
 
-            response = tokenizer.decode(output[0], skip_special_tokens=True)
+            response = tokenizer.decode(output[0], skip_special_tokens=Tru, clean_up_tokenization_spaces=Truee)
             response = response[len(text):].strip()
 
             for chunk in response.split():
