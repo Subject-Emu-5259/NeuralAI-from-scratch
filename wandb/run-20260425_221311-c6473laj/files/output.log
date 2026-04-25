@@ -1,0 +1,15 @@
+  0% 0/63 [00:00<?, ?it/s]/usr/local/lib/python3.12/dist-packages/torch/_dynamo/eval_frame.py:1181: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+ 33% 21/63 [01:07<02:15,  3.22s/it]/usr/local/lib/python3.12/dist-packages/torch/_dynamo/eval_frame.py:1181: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+{'loss': 2.2333, 'learning_rate': 0.00016825396825396826, 'epoch': 0.46}
+{'loss': 1.8163, 'learning_rate': 0.0001365079365079365, 'epoch': 0.92}
+  return fn(*args, **kwargs)
+ 68% 43/63 [02:19<01:07,  3.36s/it]/usr/local/lib/python3.12/dist-packages/torch/_dynamo/eval_frame.py:1181: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+{'loss': 1.4864, 'learning_rate': 0.00010476190476190477, 'epoch': 1.38}
+{'loss': 1.3408, 'learning_rate': 7.301587301587302e-05, 'epoch': 1.84}
+  return fn(*args, **kwargs)
+100% 63/63 [03:25<00:00,  3.27s/it]
+{'loss': 1.1581, 'learning_rate': 4.126984126984127e-05, 'epoch': 2.3}
+{'loss': 1.1621, 'learning_rate': 9.523809523809523e-06, 'epoch': 2.76}
+{'train_runtime': 405.8373, 'train_samples_per_second': 2.565, 'train_steps_per_second': 0.155, 'train_loss': 1.5145263104211717, 'epoch': 2.9}
+Training complete!

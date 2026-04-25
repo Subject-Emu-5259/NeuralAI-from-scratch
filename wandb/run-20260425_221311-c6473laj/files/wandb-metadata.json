@@ -1,0 +1,40 @@
+{
+  "os": "Linux-6.6.113+-x86_64-with-glibc2.35",
+  "python": "CPython 3.12.13",
+  "startedAt": "2026-04-25T22:13:11.357576Z",
+  "program": "/content/NeuralAI-from-scratch/training/train_clean.py",
+  "codePath": "training/train_clean.py",
+  "codePathLocal": "training/train_clean.py",
+  "git": {
+    "remote": "https://github.com/Subject-Emu-5259/NeuralAI-from-scratch.git",
+    "commit": "f8b30e2f87ee649a4921c6c66272b1c86423005e"
+  },
+  "email": "deandrewh26@gmail.com",
+  "root": "/content/NeuralAI-from-scratch",
+  "host": "c7e321c00d2f",
+  "executable": "/usr/bin/python3",
+  "cpu_count": 1,
+  "cpu_count_logical": 2,
+  "gpu": "Tesla T4",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "120942624768",
+      "used": "47242264576"
+    }
+  },
+  "memory": {
+    "total": "13605826560"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "Tesla T4",
+      "memoryTotal": "16106127360",
+      "cudaCores": 2560,
+      "architecture": "Turing",
+      "uuid": "GPU-f3424a93-1c8d-2b96-f948-52e08433c60e"
+    }
+  ],
+  "cudaVersion": "13.0",
+  "writerId": "z09ms9s1oq35ytd8q62c64yl2o6dmfuc"
+}
