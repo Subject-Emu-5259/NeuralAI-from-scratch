@@ -28,7 +28,6 @@ def load_model():
             from transformers import AutoModelForCausalLM, AutoTokenizer
             tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
             tokenizer.pad_token = tokenizer.eos_token
-            # Load base model + adapter
             model = AutoModelForCausalLM.from_pretrained(
                 MODEL_PATH,
                 device_map="auto" if device == "cuda" else None,
@@ -88,7 +87,6 @@ def chat():
                 yield "data: [DONE]\n\n"
                 return
 
-            # Build chat list
             chat = []
             for msg in messages:
                 role = msg.get("role", "user")
@@ -100,15 +98,17 @@ def chat():
                 chat.append({"role": "user", "content": user_content})
 
             if not any(m["role"] == "system" for m in chat):
-                chat.insert(0, {"role": "system", "content": "You are NeuralAI, a helpful AI assistant."})
+                chat.insert(0, {"role": "system", "content": "You are NeuralAI, a custom fine-tuned AI assistant built from SmolLM2-360M. You can read and analyze PDF, DOCX, TXT, and MD files when uploaded. You support code generation in Python, JavaScript, SQL, and more. You can design REST APIs, explain concepts, help with data science, machine learning, and general reasoning. Be helpful, concise, and friendly."})
 
             try:
                 prompt = tokenizer.apply_chat_template(chat, tokenize=False, add_generation_prompt=True)
             except Exception:
                 prompt = ""
                 for msg in chat:
-                    prompt += f"<|im_start|>{msg['role']}\n{msg['content']}<|im_end|>\n"
-                prompt += "<|im_start|>assistant\n"
+                    role = msg["role"]
+                    content = msg["content"]
+                    prompt += "<|" + role + "|>\n" + content + "\n"
+                prompt += "<|assistant|>\n"
 
             inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
             input_len = inputs["input_ids"].shape[1]
@@ -129,7 +129,7 @@ def chat():
             response = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
 
             if not response:
-                response = "I'm not sure how to respond to that. Could you rephrase?"
+                response = "I'm not sure how to respond to that. Could you try rephrasing?"
 
             for word in response.split():
                 yield f"data: {json.dumps({'content': word + ' '})}\n\n"

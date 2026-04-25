@@ -101,9 +101,15 @@
       justify-content: center;
       background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 100%);
       box-shadow: 0 0 14px var(--accent-glow);
+      overflow: hidden;
     }
 
-    .logo-img svg { width: 18px; height: 18px; }
+    .logo-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
 
     .logo-text {
       font-size: 16px;
@@ -358,6 +364,7 @@
       margin-bottom: 24px;
       box-shadow: 0 0 40px var(--accent-glow), 0 0 80px rgba(34,211,238,0.1);
       animation: glow 3s ease-in-out infinite;
+      overflow: hidden;
     }
 
     @keyframes glow {
@@ -365,7 +372,11 @@
       50% { box-shadow: 0 0 60px var(--accent-glow), 0 0 100px rgba(34,211,238,0.2); }
     }
 
-    .welcome-logo svg { width: 40px; height: 40px; }
+    .welcome-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
     .welcome h1 {
       font-size: 32px;
@@ -780,13 +791,7 @@
       <div class="header-left">
         <a href="/" class="logo">
           <div class="logo-img">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2a4 4 0 0 1 4 4c0 1.1-.45 2.1-1.17 2.83L12 12l-2.83-3.17A4 4 0 0 1 12 2z"/>
-              <path d="M12 12v10"/>
-              <circle cx="12" cy="8" r="1.5" fill="white" stroke="none"/>
-              <path d="M8 6a4 4 0 0 1 4-4"/>
-              <path d="M16 6a4 4 0 0 0-4-4"/>
-            </svg>
+            <img src="/assets/logo.png" alt="NeuralAI Logo">
           </div>
           <span class="logo-text">NeuralAI</span>
         </a>
@@ -848,13 +853,7 @@
         <div class="chat-messages" id="chatContainer">
           <div class="welcome" id="welcomeScreen">
             <div class="welcome-logo">
-              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2a4 4 0 0 1 4 4c0 1.1-.45 2.1-1.17 2.83L12 12l-2.83-3.17A4 4 0 0 1 12 2z"/>
-                <path d="M12 12v10"/>
-                <circle cx="12" cy="8" r="1.5" fill="white" stroke="none"/>
-                <path d="M8 6a4 4 0 0 1 4-4"/>
-                <path d="M16 6a4 4 0 0 0-4-4"/>
-              </svg>
+              <img src="/assets/logo.png" alt="NeuralAI Logo">
             </div>
             <h1>NeuralAI</h1>
             <p class="welcome-sub">Your custom fine-tuned language model. Built from SmolLM2-360M with QLoRA fine-tuning, optimized for chat and specialized tasks.</p>
