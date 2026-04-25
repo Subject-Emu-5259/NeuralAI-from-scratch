@@ -6,3 +6,6 @@ uploads/*.docx
 uploads/*.txt
 __pycache__/
 *.pyc
+chroma_db/
+uploads/
+__pycache__/
