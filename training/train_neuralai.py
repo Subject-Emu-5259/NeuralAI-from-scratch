@@ -129,8 +129,15 @@ def main():
         MODEL_NAME,
         device_map="auto" if device == "cuda" else None,
         torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-        attn_implementation="eager",
+        low_cpu_mem_usage=True,
     )
+    
+    # Force eager attention (disable SDPA which causes shape mismatch)
+    if hasattr(model, "model"):
+        model.model.attn.implementation = "eager"
+    for block in model.model.layers:
+        if hasattr(block, "self_attn"):
+            block.self_attn.config._attn_implementation = "eager"
     
     # Disable KV cache for training
     model.config.use_cache = False
