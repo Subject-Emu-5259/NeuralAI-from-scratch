@@ -124,20 +124,18 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     tokenizer.pad_token = tokenizer.eos_token
     
-    # Load model in float16 (no quantization - avoids bitsandbytes CUDA issues)
+    # Load model with eager attention (fixes SDPA shape mismatch on transformers 4.37)
+    from transformers import AutoConfig
+    config = AutoConfig.from_pretrained(MODEL_NAME)
+    config._attn_implementation = "eager"
+    
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
+        config=config,
         device_map="auto" if device == "cuda" else None,
         torch_dtype=torch.float16 if device == "cuda" else torch.float32,
         low_cpu_mem_usage=True,
     )
-    
-    # Force eager attention (disable SDPA which causes shape mismatch)
-    if hasattr(model, "model"):
-        model.model.attn.implementation = "eager"
-    for block in model.model.layers:
-        if hasattr(block, "self_attn"):
-            block.self_attn.config._attn_implementation = "eager"
     
     # Disable KV cache for training
     model.config.use_cache = False
