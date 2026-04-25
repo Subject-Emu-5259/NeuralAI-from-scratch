@@ -141,7 +141,7 @@ async function sendMessage() {
       for (const line of lines) {
         if (line.startsWith('data: ')) {
           const data = line.slice(6);
-          if (data === '[DONE]') { isStreaming = false; break; }
+          if (data === '[DONE]' || data.trim() === '[DONE]') { isStreaming = false; break; }
           try {
             const parsed = JSON.parse(data);
             if (parsed.content) {

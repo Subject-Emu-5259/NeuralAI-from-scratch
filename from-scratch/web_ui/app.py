@@ -29,11 +29,11 @@ def load_model():
         print(f"[NeuralAI] Loading fine-tuned model from {MODEL_PATH}")
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
-            tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, add_prefix_space=True)
+            tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
             tokenizer.pad_token = tokenizer.eos_token
             model = AutoModelForCausalLM.from_pretrained(
                 MODEL_PATH,
-                device_map="auto" if device == "cuda" else None
+                device_map="auto" if device == "cuda" else None,
                 torch_dtype=torch.float16 if device == "cuda" else torch.float32,
             )
             print("[NeuralAI] Fine-tuned model loaded successfully")
@@ -43,7 +43,7 @@ def load_model():
 
     print(f"[NeuralAI] Loading base model: {MODEL_NAME}")
     from transformers import AutoModelForCausalLM, AutoTokenizer
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, add_prefix_space=True)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
@@ -66,26 +66,42 @@ def chat():
     data = request.json
 
     messages = data.get('messages', [])
-    prompt = data.get('prompt', '')
-
-    if messages:
-        prompt = "\n".join([
-            f"{'User' if m['role']=='user' else 'Assistant'}: {m['content']}"
-            for m in messages
-        ])
+    prompt_only = data.get('prompt', '')
 
     max_new_tokens = data.get('max_tokens', 256)
     temperature = data.get('temperature', 0.7)
-
-    if not prompt:
-        return jsonify({'error': 'No prompt provided'}), 400
 
     lazy_load()
 
     def generate():
         try:
-            text = f"<|system|>\nYou are NeuralAI, a helpful AI assistant.</s>\n<|user|>\n{prompt}</s>\n<|assistant|>\n"
-            inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
+            # Build prompt from conversation history
+            prompt_text = ""
+            last_user_msg = ""
+            
+            for msg in messages:
+                role = msg.get("role", "user")
+                content = msg.get("content", "")
+                if role == "system":
+                    prompt_text += f"<|system|>\n{content}</s>\n"
+                elif role == "user":
+                    prompt_text += f"<|user|>\n{content}</s>\n"
+                    last_user_msg = content
+                elif role == "assistant":
+                    prompt_text += f"<|assistant|>\n{content}</s>\n"
+
+            # Use last user message or single prompt
+            if last_user_msg:
+                user_content = last_user_msg
+            elif prompt_only:
+                user_content = prompt_only
+            else:
+                yield f"data: {json.dumps({'error': 'No message content'})}\n\n"
+                yield "data: [DONE]\n\n"
+                return
+
+            full_prompt = f"{prompt_text}<|assistant|>\n"
+            inputs = tokenizer(full_prompt, return_tensors="pt", truncation=True, max_length=512)
             if device == "cuda":
                 inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -98,11 +114,12 @@ def chat():
                     pad_token_id=tokenizer.eos_token_id,
                 )
 
-            response = tokenizer.decode(output[0], skip_special_tokens=Tru, clean_up_tokenization_spaces=Truee)
-            response = response[len(text):].strip()
+            response = tokenizer.decode(output[0], skip_special_tokens=True)
+            response = response[len(full_prompt):].strip()
 
-            for chunk in response.split():
-                yield f"data: {json.dumps({'content': chunk})}\n\n"
+            for word in response.split():
+                yield f"data: {json.dumps({'content': word})}\n\n"
+                import time; time.sleep(0.02)
             yield "data: [DONE]\n\n"
 
         except Exception as e:
