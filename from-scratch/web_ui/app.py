@@ -16,12 +16,10 @@ model = None
 tokenizer = None
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-
 def load_model():
     global model, tokenizer
     fine_safetensors = os.path.join(MODEL_PATH, "adapter_model.safetensors")
     fine_bin = os.path.join(MODEL_PATH, "adapter_model.bin")
-
     if os.path.exists(fine_safetensors) or os.path.exists(fine_bin):
         print(f"[NeuralAI] Loading fine-tuned model from {MODEL_PATH}")
         try:
@@ -38,7 +36,6 @@ def load_model():
             return
         except Exception as e:
             print(f"[NeuralAI] Fine-tuned load failed: {e}, falling back to base model")
-
     print(f"[NeuralAI] Loading base model: {MODEL_NAME}")
     from transformers import AutoModelForCausalLM, AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
@@ -51,17 +48,14 @@ def load_model():
     model.eval()
     print("[NeuralAI] Base model loaded")
 
-
 def lazy_load():
     global model, tokenizer
     if model is None:
         load_model()
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
-
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
@@ -70,7 +64,6 @@ def chat():
     prompt_only = data.get("prompt", "")
     max_new_tokens = int(data.get("max_tokens", 256))
     temperature = float(data.get("temperature", 0.7))
-
     lazy_load()
 
     def generate():
@@ -80,42 +73,34 @@ def chat():
                 if msg.get("role") == "user":
                     last_user = msg.get("content", "").strip()
                     break
-
             user_content = last_user or prompt_only
             if not user_content:
-                yield f"data: {json.dumps({'error': 'No message content provided'})}\n\n"
+                yield "data: " + json.dumps({"error": "No message content provided"}) + "\n\n"
                 yield "data: [DONE]\n\n"
                 return
-
             chat = []
             for msg in messages:
                 role = msg.get("role", "user")
                 content = msg.get("content", "").strip()
                 if role in ("system", "user", "assistant") and content:
                     chat.append({"role": role, "content": content})
-
             if not chat or chat[-1]["role"] != "user":
                 chat.append({"role": "user", "content": user_content})
-
             if not any(m["role"] == "system" for m in chat):
                 chat.insert(0, {"role": "system", "content": "You are NeuralAI, a custom fine-tuned AI assistant built from SmolLM2-360M. You can read and analyze PDF, DOCX, TXT, and MD files when uploaded. You support code generation in Python, JavaScript, SQL, and more. You can design REST APIs, explain concepts, help with data science, machine learning, and general reasoning. Be helpful, concise, and friendly."})
-
             try:
                 prompt = tokenizer.apply_chat_template(chat, tokenize=False, add_generation_prompt=True)
             except Exception:
                 prompt = ""
                 for msg in chat:
-                    role = msg["role"]
-                    content = msg["content"]
-                    prompt += "<|" + role + "|>\n" + content + "\n"
+                    r = msg["role"]
+                    c = msg["content"]
+                    prompt += "<|" + r + "|>\n" + c + "\n"
                 prompt += "<|assistant|>\n"
-
             inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
             input_len = inputs["input_ids"].shape[1]
-
             if device == "cuda":
                 inputs = {k: v.to(device) for k, v in inputs.items()}
-
             with torch.no_grad():
                 output = model.generate(
                     **inputs,
@@ -124,25 +109,18 @@ def chat():
                     do_sample=temperature > 0,
                     pad_token_id=tokenizer.eos_token_id,
                 )
-
             new_tokens = output[0][input_len:]
             response = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
-
             if not response:
                 response = "I'm not sure how to respond to that. Could you try rephrasing?"
-
             for word in response.split():
-                yield f"data: {json.dumps({'content': word + ' '})}\n\n"
+                yield "data: " + json.dumps({"content": word + " "}) + "\n\n"
                 time.sleep(0.02)
-
             yield "data: [DONE]\n\n"
-
         except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            yield "data: " + json.dumps({"error": str(e)}) + "\n\n"
             yield "data: [DONE]\n\n"
-
     return Response(generate(), mimetype="text/event-stream")
-
 
 @app.route("/api/status", methods=["GET"])
 def status():
@@ -156,11 +134,9 @@ def status():
         "version": "2.0"
     })
 
-
 @app.route("/static/<path:filename>")
 def static_files(filename):
     return send_from_directory(os.path.join(BASE_DIR, "static"), filename)
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
