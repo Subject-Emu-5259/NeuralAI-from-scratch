@@ -4,14 +4,17 @@ NeuralAI — Flask Web UI Backend
 Serves the NeuralAI chat interface with local model inference.
 """
 import os
+import sys
 import json
 import torch
 from flask import Flask, render_template, request, jsonify, Response, send_from_directory
+from datetime import datetime
 
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.environ.get("MODEL_PATH", os.path.join(BASE_DIR, "neuralai-trained"))  # LoRA fine-tuned modelMODEL_NAME = os.environ.get("MODEL_NAME", "HuggingFaceTB/SmolLM2-360M-Instruct")
+MODEL_PATH = os.environ.get("MODEL_PATH", os.path.join(os.path.dirname(BASE_DIR), "..", "checkpoints", "final_model"))
+MODEL_NAME = os.environ.get("MODEL_NAME", "HuggingFaceTB/SmolLM2-360M-Instruct")
 
 model = None
 tokenizer = None
@@ -19,10 +22,11 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def load_model():
     global model, tokenizer
-    model_file = os.path.join(MODEL_PATH, "adapter_model.safetensors")
-    base_model_file = os.path.join(MODEL_PATH, "pytorch_model.bin")
 
-    if os.path.exists(model_file) or os.path.exists(base_model_file):
+    fine_path = os.path.join(MODEL_PATH, "adapter_model.safetensors")
+    base_path = os.path.join(MODEL_PATH, "pytorch_model.bin")
+
+    if os.path.exists(fine_path) or os.path.exists(base_path):
         print(f"[NeuralAI] Loading fine-tuned model from {MODEL_PATH}")
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -33,10 +37,10 @@ def load_model():
                 device_map="auto" if device == "cuda" else None,
                 torch_dtype=torch.float16 if device == "cuda" else torch.float32,
             )
-            print("[NeuralAI] Fine-tuned model loaded successfully")
+            print("[NeuralAI] Fine-tuned model loaded")
             return
         except Exception as e:
-            print(f"[NeuralAI] Failed to load fine-tuned model: {e}")
+            print(f"[NeuralAI] Fine-tuned failed: {e}, falling back to base")
 
     print(f"[NeuralAI] Loading base model: {MODEL_NAME}")
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -64,7 +68,6 @@ def chat():
 
     messages = data.get('messages', [])
     prompt_only = data.get('prompt', '')
-
     max_new_tokens = data.get('max_tokens', 256)
     temperature = data.get('temperature', 0.7)
 
@@ -72,45 +75,35 @@ def chat():
 
     def generate():
         try:
-            # ── Build prompt from conversation history ──────────────────
-            # Format: "Instruction: ...\nResponse: ..." matching training data
-            prompt_parts = []
+            prompt_text = ""
+            last_user_msg = ""
+
             for msg in messages:
                 role = msg.get("role", "user")
                 content = msg.get("content", "")
                 if role == "system":
-                    # Skip system in instruction format, prepend to final prompt
-                    pass
+                    prompt_text += f"<|system|>\n{content}</s>\n"
                 elif role == "user":
-                    prompt_parts.append(f"Instruction: {content}")
+                    prompt_text += f"<|user|>\n{content}</s>\n"
+                    last_user_msg = content
                 elif role == "assistant":
-                    prompt_parts.append(f"Response: {content}")
+                    prompt_text += f"<|assistant|>\n{content}</s>\n"
 
-            # Get the last user message for generation
-            if messages and messages[-1].get("role") == "user":
-                last_user = messages[-1].get("content", "")
+            if last_user_msg:
+                user_content = last_user_msg
             elif prompt_only:
-                last_user = prompt_only
+                user_content = prompt_only
             else:
                 yield f"data: {json.dumps({'error': 'No message content'})}\n\n"
                 yield "data: [DONE]\n\n"
                 return
 
-            # Build final prompt: all prior exchanges + current instruction
-            full_prompt = "\n".join(prompt_parts)
-            if full_prompt:
-                full_prompt += f"\nInstruction: {last_user}\nResponse:"
-            else:
-                full_prompt = f"Instruction: {last_user}\nResponse:"
-
-            # Tokenize
-            inputs = tokenizer(full_prompt, return_tensors="pt", truncation=True, max_length=512)
+            # Use simple plain-text prompt (no chat template tokens that might leak)
+            plain_prompt = f"Instruction: {user_content}\nResponse:"
+            inputs = tokenizer(plain_prompt, return_tensors="pt", truncation=True, max_length=512)
             if device == "cuda":
                 inputs = {k: v.to(device) for k, v in inputs.items()}
 
-            prompt_len = len(inputs["input_ids"][0])
-
-            # Generate
             with torch.no_grad():
                 output = model.generate(
                     **inputs,
@@ -120,22 +113,9 @@ def chat():
                     pad_token_id=tokenizer.eos_token_id,
                 )
 
-            # Decode full output
-            full_response = tokenizer.decode(output[0], skip_special_tokens=True)
+            response = tokenizer.decode(output[0], skip_special_tokens=True)
+            response = response[len(plain_prompt):].strip()
 
-            # Extract ONLY the new response after "Response:"
-            # Find the last "Response:" marker and take everything after it
-            if "Response:" in full_response:
-                response = full_response.split("Response:")[-1].strip()
-            else:
-                # Fallback: remove the prompt portion
-                response = full_response[prompt_len:].strip()
-
-            # Clean up any leftover "Instruction:" artifacts
-            if "Instruction:" in response:
-                response = response.split("Instruction:")[0].strip()
-
-            # Stream word by word
             for word in response.split():
                 yield f"data: {json.dumps({'content': word})}\n\n"
                 import time; time.sleep(0.02)
@@ -163,6 +143,6 @@ def static_files(filename):
     return send_from_directory(BASE_DIR, filename)
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get('PORT', 5000))
     print(f"NeuralAI starting on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
