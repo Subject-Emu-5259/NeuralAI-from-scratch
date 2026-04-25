@@ -11,8 +11,7 @@ from flask import Flask, render_template, request, jsonify, Response, send_from_
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.environ.get("MODEL_PATH", os.path.join(BASE_DIR, "..", "checkpoints", "final_model"))
-MODEL_NAME = os.environ.get("MODEL_NAME", "HuggingFaceTB/SmolLM2-360M-Instruct")
+MODEL_PATH = os.environ.get("MODEL_PATH", os.path.join(BASE_DIR, "neuralai-trained"))  # LoRA fine-tuned modelMODEL_NAME = os.environ.get("MODEL_NAME", "HuggingFaceTB/SmolLM2-360M-Instruct")
 
 model = None
 tokenizer = None
