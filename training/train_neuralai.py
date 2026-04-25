@@ -70,7 +70,7 @@ def main():
     
     try:
         import accelerate
-        print("✅ Accelerate")
+        print(f"✅ Accelerate {accelerate.__version__}")
     except ImportError:
         missing.append("accelerate")
     
@@ -79,7 +79,7 @@ def main():
         print("\nInstall with:")
         print(f"  pip install {' '.join(missing)}")
         print("\nOr use Google Colab with:")
-        print("  !pip install torch transformers peft bitsandbytes accelerate")
+        print("  !pip install torch transformers[torch]==4.37.2 peft==0.5.0 accelerate==0.25.0 bitsandbytes datasets")
         sys.exit(1)
     
     # Import for training
