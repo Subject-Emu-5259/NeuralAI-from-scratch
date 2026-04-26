@@ -1,6 +1,6 @@
 # 🧠 NeuralAI
 
-![License](https://img.shields.io/badge/License-MIT-blue) ![Python](https://img.shields.io/badge/Python-3.10+-green) ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red) ![Status](https://img.shields.io/badge/Status-Production)Ready-success)
+![License](https://img.shields.io/badge/License-MIT-blue) ![Python](https://img.shields.io/badge/Python-3.10+-green) ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red) ![Status](https://img.shields.io/badge/Status-Production)
 
 **A production-ready AI assistant built from scratch using PyTorch and Hugging Face transformers.**
 
