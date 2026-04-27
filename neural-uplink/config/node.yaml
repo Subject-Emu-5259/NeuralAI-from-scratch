@@ -1,0 +1,72 @@
+node_id: baltimore-01
+node_name: Baltimore Node
+location: Baltimore, MD
+termux: true
+capabilities:
+  - llm-inference
+  - world-simulation
+  - data-processing
+  - api-gateway
+  - agent-runtime
+
+services:
+  - name: neural_uplinkd
+    cmd: python3 core/neural_uplinkd.py
+    port: 7000
+    health_path: /health
+    restart_policy: always
+
+  - name: agent-dialog
+    cmd: python3 agents/dialog.py
+    port: 7101
+    health_path: /health
+    restart_policy: always
+
+  - name: agent-data
+    cmd: python3 agents/data.py
+    port: 7102
+    health_path: /health
+    restart_policy: always
+
+  - name: agent-ops
+    cmd: python3 agents/ops.py
+    port: 7103
+    health_path: /health
+    restart_policy: on_failure
+
+  - name: agent-worldbuilder
+    cmd: python3 agents/worldbuilder.py
+    port: 7104
+    health_path: /health
+    restart_policy: on_failure
+
+  - name: zo-gateway
+    cmd: python3 servers/zo_gateway.py
+    port: 8000
+    health_path: /health
+    restart_policy: always
+
+  - name: zo-control
+    cmd: python3 servers/zo_control.py
+    port: 8001
+    health_path: /health
+    restart_policy: always
+
+watchdog:
+  interval_secs: 15
+  max_restart_attempts: 3
+  restart_cooldown_secs: 30
+
+redis:
+  host: localhost
+  port: 6379
+  db: 0
+
+vector_store:
+  type: chroma
+  path: ./vector_db
+
+zo_controller:
+  url: https://api.zo.computer
+  node_registry_endpoint: /nodes/register
+  heartbeat_interval_secs: 60
