@@ -1,6 +1,6 @@
 # 🧠 NeuralAI
 
-![License](https://img.shields.io/badge/License-MIT-blue) ![Python](https://img.shields.io/badge/Python-3.10+-green) ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red) ![Status](https://img.shields.io/badge/Status-Production)
+![License](https://img.shields.io/badge/License-MIT-blue) ![Python](https://img.shields.io/badge/Python-3.10+-green) ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red) ![Status](https://img.shields.io/badge/Status-Production-green)
 
 **A production-ready AI assistant built from scratch using PyTorch and Hugging Face transformers.**
 
@@ -10,6 +10,15 @@ Fine-tuned from SmolLM2-360M-Instruct with QLoRA — 360M parameters, optimized 
 
 ## ✨ Features & Capabilities
 
+### 🤖 AI Chat
+| Feature | Description |
+|---|---|
+| **Local LLM** | SmolLM2-360M-Instruct, fine-tuned with QLoRA |
+| **Streaming** | Word-by-word SSE streaming responses |
+| **Memory** | Full conversation context per session |
+| **Code Highlighting** | Syntax-highlighted code blocks, copy button |
+| **Markdown** | Bold, italic, lists, inline code |
+
 ### 📄 Document Intelligence (RAG)
 | Capability | Description |
 |---|---|
@@ -17,9 +26,32 @@ Fine-tuned from SmolLM2-360M-Instruct with QLoRA — 360M parameters, optimized 
 | **Semantic Search** | ChromaDB vector storage, `all-MiniLM-L6-v2` embeddings |
 | **Chunking** | 500 chars per chunk, 80 char overlap |
 | **Context Injection** | Top-4 relevant chunks passed to model as context |
-| **Chat Integration** | File chips shown on messages; context in system prompt |
+| **File Chips** | Attached files shown on messages |
 
-### 💻 Coding & Development
+### 💻 Integrated Terminal
+| Feature | Description |
+|---|---|
+| **Persistent PTY** | Real bash shell via WebSocket/Flask |
+| **Session Persistence** | Terminal survives tab switches |
+| **Custom Commands** | `neural <msg>` — chat with AI from terminal |
+| **System Status** | `uplink`, `model`, `uptime` commands |
+| **Actions** | Clear, Restart, Kill session |
+
+### 🌐 Neural Uplink (Agent Network)
+| Feature | Description |
+|---|---|
+| **Baltimore Node** | 4 AI agents: Dialog, Data, Ops, Worldbuilder |
+| **Hybrid Routing** | Complex tasks automatically routed to agents |
+| **Auto-detection** | Keywords like "research", "analyze", "debug" trigger uplink |
+| **Parallel Agents** | 4 agents handle specialized sub-tasks |
+
+### 🧠 Reasoning & Analysis
+- **Concepts**: Machine learning, transformers, algorithms, data structures
+- **Math**: Arithmetic, algebra, calculus explanations
+- **Logic**: Problem solving, step-by-step reasoning
+- **Comparison**: Technology analysis, pros/cons, recommendations
+
+### 🛠️ Coding & Development
 | Capability | Languages | Features |
 |---|---|---|
 | **Code Generation** | Python, JavaScript, SQL, Go, Rust, HTML/CSS | Functions, classes, scripts, APIs |
@@ -28,35 +60,20 @@ Fine-tuned from SmolLM2-360M-Instruct with QLoRA — 360M parameters, optimized 
 | **REST API Design** | OpenAPI/Swagger style | Endpoints, schemas, status codes |
 | **Database Design** | SQL schemas | Normalization, indexes, queries |
 
-### 🧠 Reasoning & Analysis
-- **Concepts**: Machine learning, transformers, algorithms, data structures
-- **Math**: Arithmetic, algebra, calculus explanations
-- **Logic**: Problem solving, step-by-step reasoning
-- **Comparison**: Technology analysis, pros/cons, recommendations
-
-### 🛠️ Web & Tasks
-- Web search information retrieval
-- Task planning and breakdown
-- Meeting agendas, project plans, timelines
-- Email and professional writing
-- Social media content creation
-
 ---
 
 ## 🏗️ Architecture
 
 ```
-Input
+User Input
   │
-Token Embedding → Positional Encoding
+  ├─ Chat Tab ──── SmolLM2-360M-Instruct (local CPU inference)
+  │               ├─ RAG: ChromaDB + all-MiniLM-L6-v2
+  │               └─ Uplink: Neural Uplink Baltimore Node
   │
-Transformer Blocks (22 layers)
-  ├── Multi-Head Self-Attention (Flash/SDPA)
-  ├── LayerNorm
-  ├── SwiGLU Feed-Forward
-  └── Residual Connection
-  ↓
-Final LayerNorm → LM Head → Next Token
+  └─ Terminal Tab ─ Persistent PTY (Bash shell)
+                      ├─ Native shell commands
+                      └─ `neural <msg>` ──── routes to AI model
 ```
 
 | Component | Details |
@@ -65,6 +82,7 @@ Final LayerNorm → LM Head → Next Token
 | **Fine-tuning** | QLoRA (4-bit NF4, rank=16, alpha=32) |
 | **Embedding** | all-MiniLM-L6-v2 (384 dim) |
 | **Vector DB** | ChromaDB (Persistent) |
+| **Terminal** | PTY-based shell via WebSocket/Flask |
 | **Framework** | Flask + vanilla JS (no frontend frameworks) |
 | **Device** | CPU (float32) — GPU-ready (float16 CUDA) |
 
@@ -85,13 +103,7 @@ cd from-scratch/web_ui
 python app.py
 ```
 
-Or on Google Colab:
-```bash
-!git clone https://github.com/Subject-Emu-5259/NeuralAI-from-scratch.git
-%cd NeuralAI-from-scratch
-!pip install -r requirements.txt
-!cd from-scratch/web_ui && python app.py
-```
+**Live:** https://neural-deandrewharris.zocomputer.io
 
 ---
 
@@ -100,28 +112,45 @@ Or on Google Colab:
 ```
 NeuralAI-from-scratch/
 ├── README.md              ← This file
-├── SOCIAL.md               ← Social media preview & branding
-├── TRAINING_PLAN.md        ← Training roadmap & milestones
-├── requirements.txt        ← Python dependencies
+├── SOCIAL.md              ← Social media preview & branding
+├── TRAINING.md             ← Training metrics & dataset
+├── requirements.txt       ← Python dependencies
 ├── checkpoints/           ← Trained model weights
 │   └── final_model/       ← LoRA adapter + config
 ├── data/
 │   └── train.jsonl        ← Training data (347 samples)
 └── from-scratch/
     ├── training/
-    │   ├── train_neuralai.py    ← QLoRA fine-tuning script
-    │   └── train_novai.py       ← NovaAI (deprecated)
+    │   └── train_neuralai.py   ← QLoRA fine-tuning script
     └── web_ui/
-        ├── app.py          ← Flask backend (chat, upload, status)
-        ├── rag.py         ← RAG: embedding, chunking, retrieval
-        ├── chroma_db/     ← Persistent vector database
-        ├── uploads/       ← Uploaded documents
+        ├── app.py              ← Flask backend (chat, RAG, terminal, uplink)
+        ├── rag.py              ← RAG: embedding, chunking, retrieval
+        ├── terminal.py         ← PTY terminal via WebSocket/Flask
         ├── templates/
-        │   └── index.html ← Main UI (header, sidebar, chat, input)
+        │   └── index.html      ← Full UI: tabs, chat, terminal, settings
         └── static/
-            ├── css/main.css   ← Styles
-            └── js/main.js     ← Frontend logic
+            ├── css/main.css    ← Styles
+            ├── js/main.js      ← Frontend logic
+            └── assets/logo.png  ← Brain logo
 ```
+
+---
+
+## 🌐 Live Deployment
+
+**Web UI:** https://neural-deandrewharris.zocomputer.io
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/` | GET | Full UI (Chat + Terminal tabs) |
+| `/api/chat` | POST | Stream chat response (SSE) |
+| `/api/upload` | POST | Upload PDF/DOCX/TXT/MD for RAG |
+| `/api/status` | GET | Model, RAG, Uplink, Terminal status |
+| `/api/files` | GET | List indexed documents |
+| `/api/terminal/create` | POST | Create PTY session |
+| `/api/terminal/<id>/write` | POST | Send input to PTY |
+| `/api/terminal/<id>/read` | GET | Read PTY output |
+| `/api/terminal/<id>/stop` | POST | Kill PTY session |
 
 ---
 
@@ -143,20 +172,6 @@ NeuralAI-from-scratch/
 | **Training Samples** | 347 |
 | **Final Loss** | 0.040 |
 | **Loss Improvement** | 98% reduction |
-
----
-
-## 🌐 Live Deployment
-
-**Web UI:** https://neural-deandrewharris.zocomputer.io
-
-| Endpoint | Method | Description |
-|---|---|---|
-| `/` | GET | Main chat interface |
-| `/api/chat` | POST | Stream chat response |
-| `/api/upload` | POST | Upload PDF/DOCX/TXT/MD for RAG |
-| `/api/status` | GET | Model status, RAG state, version |
-| `/api/files` | GET | List indexed documents |
 
 ---
 
@@ -185,39 +200,12 @@ Response: Server-Sent Events (SSE) stream of `{"content": "word "}` chunks.
   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
   "model_type": "fine-tuned",
   "device": "cpu",
-  "version": "2.1",
+  "version": "2.4",
   "rag": true,
+  "uplink": "connected",
   "indexed_files": 1
 }
 ```
-
----
-
-## 📊 Metrics
-
-- **Model Size:** 360M parameters (~700MB in float32, ~200MB in 4-bit)
-- **Context Window:** 2048 tokens
-- **Inference Speed:** ~10-20 tokens/sec on CPU
-- **RAG Accuracy:** Semantic retrieval from uploaded documents
-- **Training Time:** ~30-60 min on Google Colab T4 GPU
-
----
-
-## 🔧 Environment Variables
-
-| Variable | Default | Description |
-|---|---|---|
-| `MODEL_PATH` | `../../checkpoints/final_model` | Path to trained LoRA adapter |
-| `MODEL_NAME` | `HuggingFaceTB/SmolLM2-360M-Instruct` | Base model name |
-| `PORT` | `5000` | Flask server port |
-
----
-
-## 📖 Documentation
-
-- **[TRAINING.md](TRAINING_PLAN.md)** — Full training metrics, dataset breakdown, loss curves
-- **[SOCIAL.md](SOCIAL.md)** — GitHub bio, social preview, sample posts
-- **[TRAINING_PLAN.md](TRAINING_PLAN.md)** — Roadmap, timeline, next steps
 
 ---
 
@@ -240,6 +228,6 @@ MIT License — free to use, modify, and commercialize.
 
 **Built with ❤️ by [Subject-Emu-5259](https://github.com/Subject-Emu-5259)**
 
-*Last Updated: April 25, 2026 | Version: 2.1 | Status: Production* 🟢
+*Last Updated: April 27, 2026 | Version: 2.4 | Status: Production* 🟢
 
 </div>

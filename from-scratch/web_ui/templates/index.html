@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="icon" type="image/svg+xml" href="/assets/logo.png">
+  <link rel="icon" type="image/svg+xml" href="/static/assets/logo.png">
   <style>
     /* ── Tab System ── */
     .tab-bar {
@@ -199,6 +199,16 @@
     .terminal-welcome h2 { font-size: 18px; color: #a78bfa; margin-bottom: 8px; font-family: 'Space Mono', monospace; }
     .terminal-welcome p { font-size: 12px; color: #6b6b76; line-height: 1.7; }
     .terminal-welcome code { background: rgba(124,58,237,0.15); padding: 2px 6px; border-radius: 4px; color: #a78bfa; font-size: 11px; }
+    /* ── Logo ── */
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { width: 28px; height: 28px; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .logo-img img { width: 100%; height: 100%; object-fit: cover; }
+    .logo-text { font-size: 16px; font-weight: 700; letter-spacing: -0.03em; background: linear-gradient(135deg, #fff 0%, #a78bfa 60%, #22d3ee 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    /* ── Welcome Logo ── */
+    .welcome-logo { width: 72px; height: 72px; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 0 40px rgba(124,58,237,0.25), 0 0 80px rgba(34,211,238,0.1); }
+    .welcome-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+
   </style>
 </head>
 <body>
@@ -207,7 +217,7 @@
   <header class="header">
     <div class="header-left">
       <a href="/" class="logo">
-        <div class="logo-img"><img src="/assets/logo.png" alt="NeuralAI"></div>
+        <div class="logo-img"><img src="/static/assets/logo.png" alt="NeuralAI"></div>
         <span class="logo-text">NeuralAI</span>
       </a>
       <div class="model-chip">
@@ -423,7 +433,7 @@
       <main class="chat-area">
         <div class="chat-messages" id="chatContainer">
           <div class="welcome" id="welcomeScreen">
-            <div class="welcome-logo"><img src="/assets/logo.png" alt="NeuralAI"></div>
+            <div class="welcome-logo"><img src="/static/assets/logo.png" alt="NeuralAI"></div>
             <h1>NeuralAI</h1>
             <p class="welcome-sub">Your personal AI assistant. I can read documents, write and debug code, explain concepts, and more — powered by your fine-tuned SmolLM2-360M model.</p>
             <div class="prompt-grid">
