@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
 NeuralAI - Flask Web UI Backend
-Local model inference + RAG + Neural Uplink hybrid routing.
+Local model inference + RAG + Neural Uplink + Integrated Terminal.
 """
 import os, json, time, torch, hashlib, requests
 from flask import Flask, render_template, request, jsonify, Response, send_from_directory
 from werkzeug.utils import secure_filename
 from rag import index_document, query_documents, rebuild_index_registry
+from terminal import terminal_bp
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
@@ -104,6 +105,8 @@ def lazy_load():
     if model is None:
         load_model()
 
+app.register_blueprint(terminal_bp)
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -158,7 +161,6 @@ def chat():
                 yield "data: [DONE]\n\n"
                 return
 
-            # Hybrid: route complex tasks to Neural Uplink agents
             if should_use_agent(user_content):
                 yield "data: " + json.dumps({"content": "[Neural Uplink] Routing to agent network...\n"}) + "\n\n"
                 agent_response = query_uplink(user_content, messages)
@@ -167,7 +169,6 @@ def chat():
                 yield "data: [DONE]\n\n"
                 return
 
-            # Standard local model response
             chat = []
             for msg in messages:
                 role = msg.get("role", "user")
@@ -232,12 +233,10 @@ def chat():
             response = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
             if not response:
                 response = "I'm not sure how to respond. Could you rephrase?"
-
             for word in response.split():
                 yield "data: " + json.dumps({"content": word + " "}) + "\n\n"
                 time.sleep(0.015)
             yield "data: [DONE]\n\n"
-
         except Exception as e:
             yield "data: " + json.dumps({"error": str(e)}) + "\n\n"
             yield "data: [DONE]\n\n"
@@ -259,7 +258,7 @@ def status():
         "model_type": "fine-tuned" if os.path.exists(os.path.join(MODEL_PATH, "adapter_model.safetensors")) else "base",
         "device": device,
         "loaded": model is not None,
-        "version": "2.3",
+        "version": "2.4",
         "rag": True,
         "indexed_files": len(INDEXED_FILES),
         "uplink": "connected" if uplink_ok else "offline"
