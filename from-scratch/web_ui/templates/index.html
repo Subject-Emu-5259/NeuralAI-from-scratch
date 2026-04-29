@@ -1281,9 +1281,31 @@ async function initTerm() {
     const d = await r.json();
     termSid = d.session_id;
     termOut('Terminal ready. Type "help" for commands.', 'info');
+    startTerminalPolling();
   } catch (e) {
     termOut('Terminal init failed: ' + e.message, 'error');
   }
+}
+
+let terminalPollInterval = null;
+
+function startTerminalPolling() {
+  if (terminalPollInterval) clearInterval(terminalPollInterval);
+  terminalPollInterval = setInterval(async () => {
+    if (!termSid) return;
+    try {
+      const r = await fetch(`/api/terminal/${termSid}/read`);
+      const d = await r.json();
+      if (d.output) {
+        termOut(d.output, '');
+      }
+      if (!d.alive) {
+        clearInterval(terminalPollInterval);
+        termOut('Terminal session ended.', 'error');
+        termSid = null;
+      }
+    } catch (e) {}
+  }, 200);
 }
 
 function termOut(txt, cls = '') {
