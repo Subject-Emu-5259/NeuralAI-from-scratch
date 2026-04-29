@@ -809,9 +809,376 @@ body {
 .term-variable { color: #ffa657; }
 .term-operator { color: #ff7b72; }
 
+
+
+/* Onboarding Modal */
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+.onboarding-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+.onboarding-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.onboarding-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 16px;
+  text-align: center;
+}
+.onboarding-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--gray-50);
+  transition: background 0.2s;
+}
+.onboarding-step:hover {
+  background: var(--gray-100);
+}
+.onboarding-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.onboarding-icon.chat { background: linear-gradient(135deg, var(--google-blue), #4285f4); }
+.onboarding-icon.files { background: linear-gradient(135deg, var(--google-green), #34a853); }
+.onboarding-icon.terminal { background: linear-gradient(135deg, #5f6368, #3c4043); }
+.onboarding-step h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 4px;
+}
+.onboarding-step p {
+  font-size: 13px;
+  color: var(--gray-700);
+  line-height: 1.5;
+}
+.onboarding-close {
+  width: 100%;
+  padding: 12px;
+  background: var(--google-blue);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.onboarding-close:hover {
+  background: var(--google-blue-dark);
+}
+
+/* Accessibility Improvements */
+*:focus-visible {
+  outline: 3px solid var(--google-blue);
+  outline-offset: 2px;
+}
+.nav-item:focus-visible,
+.tab-btn:focus-visible,
+.icon-btn:focus-visible {
+  outline: 3px solid var(--google-blue);
+  outline-offset: 2px;
+}
+.sidebar {
+  min-width: 220px;
+}
+.sidebar * {
+  color: var(--gray-900);
+}
+.sidebar .nav-item,
+.sidebar .history-item {
+  color: var(--gray-800);
+}
+@media (prefers-contrast: high) {
+  .sidebar {
+    background: var(--white);
+    border-right: 2px solid var(--gray-900);
+  }
+  .sidebar * {
+    color: var(--gray-900);
+  }
+}
+
+/* Micro-interactions */
+.nav-item:hover,
+.history-item:hover {
+  transform: translateX(4px);
+}
+.msg-bubble {
+  animation: messageIn 0.3s ease;
+}
+@keyframes messageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.input-wrapper:focus-within {
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+}
+
+/* Chat Bubble Polish */
+.message.user .msg-bubble {
+  background: linear-gradient(135deg, #e8f0fe, #d2e3fc);
+  border-radius: 20px 20px 4px 20px;
+}
+.message.assistant .msg-bubble {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 20px 20px 20px 4px;
+}
+
+/* Dark Mode */
+.dark-mode {
+  --gray-50: #1a1a1a;
+  --gray-100: #2d2d2d;
+  --gray-200: #3d3d3d;
+  --gray-300: #525252;
+  --gray-500: #8b8b8b;
+  --gray-700: #b0b0b0;
+  --gray-900: #f0f0f0;
+  --white: #121212;
+}
+.dark-mode .header,
+.dark-mode .sidebar,
+.dark-mode .tab-bar {
+  background: #1a1a1a;
+  border-color: #333;
+}
+.dark-mode .input-wrapper {
+  background: #2d2d2d;
+  border-color: #444;
+}
+.dark-mode .message.assistant .msg-bubble {
+  background: #2d2d2d;
+  border-color: #444;
+  color: #f0f0f0;
+}
+.dark-mode .message.user .msg-bubble {
+  background: linear-gradient(135deg, #1e3a5f, #2d4a6f);
+  color: #e0e0e0;
+}
+
+/* Model Badge */
+.model-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--gray-100);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--gray-700);
+  cursor: help;
+  position: relative;
+}
+.model-badge::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  background: var(--gray-900);
+  color: white;
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s;
+  margin-bottom: 8px;
+}
+.model-badge:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Typing Indicator */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--gray-50);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.typing-dots {
+  display: flex;
+  gap: 4px;
+}
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  background: var(--google-blue);
+  border-radius: 50%;
+  animation: bounce 1.4s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Message Timestamp & Copy */
+.msg-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.msg-timestamp {
+  font-size: 11px;
+  color: var(--gray-500);
+}
+.msg-copy-btn {
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--gray-600);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.msg-bubble:hover .msg-copy-btn {
+  opacity: 1;
+}
+.msg-copy-btn:hover {
+  background: var(--gray-100);
+}
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    transition: left 0.3s;
+  }
+  .sidebar.open {
+    left: 0;
+  }
+  .sidebar-toggle-mobile {
+    display: flex;
+    position: fixed;
+    bottom: 80px;
+    left: 16px;
+    width: 48px;
+    height: 48px;
+    background: var(--google-blue);
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 50;
+  }
+  .input-wrapper {
+    padding: 8px 12px;
+  }
+  textarea {
+    font-size: 16px;
+  }
+  .welcome h1 {
+    font-size: 24px;
+  }
+  .prompt-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Privacy Notice Link */
+.privacy-link {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  font-size: 11px;
+  color: var(--gray-500);
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.privacy-link:hover {
+  opacity: 1;
+  color: var(--google-blue);
+}
+
 </style>
 </head>
 <body>
+
+<!-- Onboarding Modal -->
+<div class="onboarding-overlay" id="onboardingOverlay">
+  <div class="onboarding-card">
+    <div class="onboarding-title">Welcome to NeuralAI</div>
+    
+    <div class="onboarding-step">
+      <div class="onboarding-icon chat">💬</div>
+      <div>
+        <h4>Chat</h4>
+        <p>Ask questions, write code, analyze documents. NeuralAI responds with streaming answers.</p>
+      </div>
+    </div>
+    
+    <div class="onboarding-step">
+      <div class="onboarding-icon files">📁</div>
+      <div>
+        <h4>Files</h4>
+        <p>Upload PDFs, docs, or text files. NeuralAI can read and answer questions about them.</p>
+      </div>
+    </div>
+    
+    <div class="onboarding-step">
+      <div class="onboarding-icon terminal">⚡</div>
+      <div>
+        <h4>Terminal</h4>
+        <p>Run commands in Bash, Python, or Node.js. A real shell in your browser.</p>
+      </div>
+    </div>
+    
+    <button class="onboarding-close" onclick="closeOnboarding()">Got it, let's go!</button>
+  </div>
+</div>
+
+
 <!-- Top bar -->
 <header class="topbar">
   <div class="topbar-left">
@@ -1137,7 +1504,7 @@ async function sendMsg() {
 
   const aiEl = addMsg('ai', '');
   const bubbleEl = aiEl;
-  bubbleEl.innerHTML = '<em>Thinking...</em>';
+  showTypingIndicator();
 
   try {
     const r = await fetch('/api/chat', {
@@ -1182,8 +1549,11 @@ async function sendMsg() {
     conversation.push({ role: 'assistant', content: full });
 
   } catch (err) {
-    bubbleEl.innerHTML = '<span style="color:#ea4335">Error: ' + err.message + '</span>';
-  } finally {
+    hideTypingIndicator();
+    bubbleEl.innerHTML = '<span style=\"color:#ea4335\">Connection lost — retrying...</span>';
+    setTimeout(() => sendMsg(), 3000);
+  } } finally {
+    hideTypingIndicator();
     isStreaming = false;
     sendBtn.disabled = false;
     sendBtn.textContent = 'Send';
@@ -1193,8 +1563,27 @@ async function sendMsg() {
 function addMsg(role, txt) {
   const d = document.createElement('div');
   d.className = 'msg ' + role;
-  d.innerHTML = txt ? fmt(txt) : '';
+  const time = getTimestamp();
+  
+  // Create bubble with timestamp
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.innerHTML = txt ? fmt(txt) : '';
+  
+  // Add timestamp
+  const meta = document.createElement('div');
+  meta.className = 'msg-meta';
+  meta.innerHTML = `<span class="msg-timestamp">${time}</span>`;
+  
+  // Add copy button for assistant messages
+  if (role === 'ai' && txt) {
+    addCopyBtn(bubble, txt);
+  }
+  
+  d.appendChild(meta);
+  d.appendChild(bubble);
   messagesEl.appendChild(d);
+  
   return d;
 }
 
@@ -1391,6 +1780,130 @@ document.getElementById('terminal-input').addEventListener('keydown', async e =>
     termOut('Write failed', 'error');
   }
 });
+
+
+// ========================================
+// NeuralAI UX & Accessibility Features
+// ========================================
+
+// Onboarding
+function showOnboarding() {
+  const seen = localStorage.getItem('neuralai_onboarded');
+  if (!seen) {
+    document.getElementById('onboardingOverlay')?.classList.add('visible');
+  }
+}
+
+function closeOnboarding() {
+  document.getElementById('onboardingOverlay')?.classList.remove('visible');
+  localStorage.setItem('neuralai_onboarded', 'true');
+}
+
+// Dark Mode
+let isDarkMode = false;
+
+function toggleDarkMode() {
+  isDarkMode = !isDarkMode;
+  document.body.classList.toggle('dark-mode', isDarkMode);
+  localStorage.setItem('neuralai_dark_mode', isDarkMode);
+  showToast(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success');
+}
+
+function loadDarkMode() {
+  const saved = localStorage.getItem('neuralai_dark_mode');
+  if (saved === 'true') {
+    isDarkMode = true;
+    document.body.classList.add('dark-mode');
+  }
+}
+
+// Typing Indicator
+function showTypingIndicator() {
+  const existing = document.querySelector('.typing-indicator');
+  if (existing) return;
+  
+  const indicator = document.createElement('div');
+  indicator.className = 'typing-indicator';
+  indicator.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div><span>NeuralAI is thinking...</span>';
+  
+  const messages = document.getElementById('messages');
+  if (messages) messages.appendChild(indicator);
+}
+
+function hideTypingIndicator() {
+  document.querySelector('.typing-indicator')?.remove();
+}
+
+// Copy Button for Messages
+function addCopyBtn(bubble, text) {
+  const btn = document.createElement('button');
+  btn.className = 'msg-copy-btn';
+  btn.textContent = 'Copy';
+  btn.onclick = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+  };
+  bubble.appendChild(btn);
+}
+
+// Session Persistence
+function saveConversation() {
+  try {
+    localStorage.setItem('neuralai_conversation', JSON.stringify(conversation));
+  } catch (e) {}
+}
+
+function loadSavedConversation() {
+  try {
+    const saved = localStorage.getItem('neuralai_conversation');
+    if (saved) {
+      conversation = JSON.parse(saved);
+      if (conversation.length > 0) {
+        document.getElementById('welcomeScreen').style.display = 'none';
+        conversation.forEach(msg => {
+          if (msg.role !== 'system') {
+            addMsg(msg.role, msg.content);
+          }
+        });
+      }
+    }
+  } catch (e) {}
+}
+
+// Mobile Sidebar
+function setupMobileSidebar() {
+  const toggle = document.getElementById('sidebarToggleMobile');
+  const sidebar = document.querySelector('.sidebar');
+  
+  if (window.innerWidth <= 768) {
+    if (toggle) toggle.style.display = 'flex';
+    if (toggle) toggle.onclick = () => sidebar?.classList.toggle('open');
+  }
+  
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 768 && sidebar?.classList.contains('open')) {
+      if (!sidebar.contains(e.target) && e.target !== toggle) {
+        sidebar.classList.remove('open');
+      }
+    }
+  });
+}
+
+// Error Handling
+window.addEventListener('offline', () => showToast('You are offline', 'error'));
+window.addEventListener('online', () => showToast('Back online!', 'success'));
+
+// Initialize UX features
+document.addEventListener('DOMContentLoaded', () => {
+  loadDarkMode();
+  loadSavedConversation();
+  showOnboarding();
+  setupMobileSidebar();
+  setInterval(saveConversation, 10000);
+});
+
 
 // Check uplink status on load
 async function checkUplink() {
@@ -1647,5 +2160,13 @@ document.querySelectorAll('.terminal-tab').forEach(tab => {
 });
 </script>
 
+
+<button class="sidebar-toggle-mobile" id="sidebarToggleMobile" style="display:none;">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M3 12h18M3 6h18M3 18h18"/>
+  </svg>
+</button>
+
+<a href="/privacy" class="privacy-link">Privacy & Data</a>
 </body>
 </html>
