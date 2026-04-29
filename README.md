@@ -228,7 +228,9 @@ MIT License — free to use, modify, and commercialize.
 
 **Built with ❤️ by [Subject-Emu-5259](https://github.com/Subject-Emu-5259)**
 
-*Last Updated: April 27, 2026 | Version: 2.4 | Status: Production* 🟢
+**Project is owned, Made and Built by DeAndrew P Harris a Collage Student of Maestro Collage for AI Engineering**
+
+*Last Updated: April 29, 2026 | Version: 3.0 | Status: Production* 🟢
 
 </div>
 
@@ -362,6 +364,8 @@ web_ui/
 <div align="center">
 
 **Built with ❤️ by [Subject-Emu-5259](https://github.com/Subject-Emu-5259)**
+
+**Project is owned, Made and Built by DeAndrew P Harris a Collage Student of Maestro Collage for AI Engineering**
 
 *Last Updated: April 29, 2026 | Version: 3.0 | Status: Production* 🟢
 
