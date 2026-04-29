@@ -27,7 +27,35 @@ async def handle_task(request):
     TASKS[task_id] = log_entry
 
     # Route to actual LLM via app.py backend
-    result = {"response": f"[DialogAgent] Processed: {goal[:100]}", "agent": AGENT_ID}
+    try:
+        import aiohttp
+        async with aiohttp.ClientSession() as sess:
+            async with sess.post("http://localhost:5000/api/chat", json={
+                "prompt": goal,
+                "messages": context.get("conversation", []),
+                "max_tokens": 256
+            }, timeout=aiohttp.ClientTimeout(total=60)) as resp:
+                if resp.status == 200:
+                    # Read SSE stream
+                    result_text = ""
+                    async for line in resp.content:
+                        line = line.decode().strip()
+                        if line.startswith("data: "):
+                            data = line[6:]
+                            if data == "[DONE]":
+                                break
+                            try:
+                                import json
+                                parsed = json.loads(data)
+                                if "content" in parsed:
+                                    result_text += parsed["content"]
+                            except:
+                                pass
+                    result = {"response": result_text, "agent": AGENT_ID}
+                else:
+                    result = {"response": f"[DialogAgent] Error from LLM: {resp.status}", "agent": AGENT_ID}
+    except Exception as e:
+        result = {"response": f"[DialogAgent] LLM error: {str(e)}", "agent": AGENT_ID}
 
     # Callback if provided
     if callback_url:

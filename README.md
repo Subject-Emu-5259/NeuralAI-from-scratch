@@ -231,3 +231,138 @@ MIT License — free to use, modify, and commercialize.
 *Last Updated: April 27, 2026 | Version: 2.4 | Status: Production* 🟢
 
 </div>
+
+---
+
+## ✨ Terminal 2.0
+
+NeuralAI now features an upgraded terminal with multi-shell support:
+
+### 🖥️ Multi-Shell Support
+| Shell | Prompt | Use Case |
+|---|---|---|
+| **Bash** | `$` | System commands, file operations |
+| **Python** | `>>>` | Quick scripts, data analysis |
+| **Node.js** | `>` | JavaScript runtime, npm packages |
+
+### ⌨️ Terminal Features
+- **Tab-based switching** between Bash, Python, and Node.js
+- **Command shortcuts**: `ls -la`, `git status`, `pip list`, `npm -v`
+- **Persistent sessions** across tab switches
+- **Session management**: Clear, Restart, Kill
+- **Color-coded output**: Errors (red), Success (green), Info (blue)
+
+### 🔧 Terminal API
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/terminal/create` | POST | Create PTY session |
+| `/api/terminal/<id>/write` | POST | Send input to PTY |
+| `/api/terminal/<id>/read` | GET | Read PTY output |
+| `/api/terminal/<id>/stop` | POST | Kill PTY session |
+| `/api/terminal/sessions` | GET | List active sessions |
+
+---
+
+## 🧠 NeuralAI Engine v3.0
+
+New unified routing engine for intelligent task distribution:
+
+### 📊 Smart Routing
+| Trigger | Route | Description |
+|---|---|---|
+| Simple questions | Local Model | Fast, direct responses |
+| "research", "analyze", "debug" | Neural Uplink | Parallel agent processing |
+| "run ", "execute ", "shell " | Terminal Tool | Command execution |
+| Messages > 200 chars | Neural Uplink | Complex task handling |
+
+### 🔀 Routing Logic
+```
+User Message
+    │
+    ├─ Tool Check ──── "run/execute/shell" → Terminal Execution
+    │
+    ├─ Uplink Check ── "research/analyze/debug" or >200 chars → Agent Network
+    │
+    └─ Default ─────── Local Model (SmolLM2-360M)
+```
+
+### 🌐 Neural Uplink Integration
+- **4 Parallel Agents**: Dialog, Data, Ops, Worldbuilder
+- **Auto-registration** on startup
+- **Health monitoring** via `/api/status`
+- **Fusion responses** from multiple agents
+
+---
+
+## 🎨 UI Upgrades v3.0
+
+### 📁 File Management
+- **Files tab** with grid view
+- **Upload/delete** documents
+- **Index tracking** for RAG
+- **File chips** on messages
+
+### ⚙️ Settings Panel
+- **Model info**: Name, type, device
+- **RAG status**: Active/Inactive
+- **Uplink status**: Connected/Offline
+- **Indexed files** count
+- **Version** display
+
+### 🎯 Quick Actions
+- **Prompt cards**: "Explain ML", "Write code", "Brainstorm", "Summarize"
+- **Mode tabs**: All, Chat, Files, System
+- **Keyboard shortcuts**: Enter to send
+
+---
+
+## 🔄 New Endpoints
+
+### File Management
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/files` | GET | List all indexed files with IDs |
+| `/api/files/<id>` | DELETE | Delete file from index and disk |
+
+### Status & Health
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/health` | GET | Quick health check |
+| `/api/status` | GET | Full system status |
+
+### Enhanced Chat
+```json
+{
+  "prompt": "Research machine learning",
+  "messages": [...],
+  "temperature": 0.7,
+  "max_tokens": 512,
+  "file_ids": ["abc123"],
+  "use_uplink": false
+}
+```
+
+---
+
+## 📦 New Files
+
+```
+web_ui/
+├── neuralai_engine.py    ← Unified routing engine
+├── neuralai_router.py    ← Task router logic
+├── neuralai_terminal.py ← Terminal execution engine
+├── terminal_ws.py        ← WebSocket endpoint
+└── static/
+    ├── favicon.png       ← New favicon
+    └── neuralai_brain_logo.jpg  ← Clean brain logo
+```
+
+---
+
+<div align="center">
+
+**Built with ❤️ by [Subject-Emu-5259](https://github.com/Subject-Emu-5259)**
+
+*Last Updated: April 29, 2026 | Version: 3.0 | Status: Production* 🟢
+
+</div>
