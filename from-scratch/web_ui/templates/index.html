@@ -1728,6 +1728,7 @@ body.dark-mode .onboarding-close:hover {
     </span>
   </div>
   <div class="topbar-right">
+    <button class="top-btn" id="newChatBtn" onclick="startNewChat()" style="background:#1a73e8;color:white;border-radius:20px;padding:6px 16px;font-weight:500;">➕ New Chat</button>
     <button class="top-btn" onclick="toggleDarkMode()">🌙 Theme</button>
     <button class="top-btn" onclick="showHelp()">❓ Help</button>
   </div>
@@ -1794,6 +1795,17 @@ body.dark-mode .onboarding-close:hover {
 
       <!-- Results / Chat area -->
       <section class="results">
+        <!-- Welcome screen for new chats -->
+        <div id="welcomeScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;">
+          <div style="font-size:48px;margin-bottom:16px;">🧠</div>
+          <h2 style="font-size:24px;color:#e4e4e7;margin-bottom:8px;">Welcome to NeuralAI</h2>
+          <p style="color:#6b7280;margin-bottom:24px;max-width:400px;">Your personal AI assistant with memory, persistence, and smart routing.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
+            <button class="prompt-card" data-prompt="What can you help me with?" style="padding:12px 20px;background:#161b22;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#e4e4e7;cursor:pointer;font-size:14px;">💡 What can you do?</button>
+            <button class="prompt-card" data-prompt="Help me write some code" style="padding:12px 20px;background:#161b22;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#e4e4e7;cursor:pointer;font-size:14px;">💻 Help me code</button>
+            <button class="prompt-card" data-prompt="Explain a complex topic to me" style="padding:12px 20px;background:#161b22;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#e4e4e7;cursor:pointer;font-size:14px;">📚 Explain something</button>
+          </div>
+        </div>
         <div class="chat-thread" id="messages"></div>
       </section>
     </div>
@@ -1956,6 +1968,8 @@ let isStreaming = false;
 let attachedFiles = {};
 let termSid = null;
 let uplinkEnabled = false;
+let currentConversationId = null;
+let conversations = [];
 
 const messagesEl = document.getElementById('messages');
 const chatInput = document.getElementById('chatInput');
@@ -1965,6 +1979,7 @@ const uplinkLabel = document.getElementById('uplinkLabel');
 const uplinkToggle = document.getElementById('uplinkToggle');
 const queryInput = document.getElementById('queryInput');
 const searchBtn = document.getElementById('searchBtn');
+const welcomeScreen = document.getElementById('welcomeScreen');
 
 function escHtml(text) { return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -2120,6 +2135,9 @@ async function sendMsg() {
   const msg = chatInput.value.trim();
   if (!msg || isStreaming) return;
 
+  // Hide welcome screen
+  if (welcomeScreen) welcomeScreen.style.display = 'none';
+
   chatInput.value = '';
   chatInput.style.height = 'auto';
   sendBtn.disabled = true;
@@ -2134,6 +2152,23 @@ async function sendMsg() {
   const bubbleEl = aiEl;
   showTypingIndicator();
 
+  // Create conversation if needed
+  if (!currentConversationId) {
+    try {
+      const createRes = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: msg.slice(0, 40) + (msg.length > 40 ? '...' : '') })
+      });
+      const createData = await createRes.json();
+      if (createData.success) {
+        currentConversationId = createData.id;
+      }
+    } catch (e) {
+      console.error('Failed to create conversation:', e);
+    }
+  }
+
   try {
     const r = await fetch('/api/chat', {
       method: 'POST',
@@ -2144,7 +2179,8 @@ async function sendMsg() {
         max_tokens: 512,
         messages: conversation,
         file_ids: Object.keys(attachedFiles),
-        use_uplink: uplinkEnabled
+        use_uplink: uplinkEnabled,
+        conversation_id: currentConversationId
       })
     });
 
@@ -2175,10 +2211,13 @@ async function sendMsg() {
     }
 
     conversation.push({ role: 'assistant', content: full });
+    
+    // Refresh conversation list
+    loadConversations();
 
   } catch (err) {
     hideTypingIndicator();
-    bubbleEl.innerHTML = '<span style=\"color:#ea4335\">Connection lost — retrying...</span>';
+    bubbleEl.innerHTML = '<span style="color:#ea4335">Connection lost — retrying...</span>';
     setTimeout(() => sendMsg(), 3000);
   } finally {
     hideTypingIndicator();
@@ -2420,6 +2459,117 @@ document.getElementById('terminal-input').addEventListener('keydown', async e =>
 
 
 // ========================================
+// CONVERSATION PERSISTENCE (SQLite)
+// ========================================
+
+async function loadConversations() {
+  try {
+    const res = await fetch('/api/conversations');
+    const data = await res.json();
+    conversations = data.conversations || [];
+    renderHistoryDropdown();
+  } catch (e) {
+    console.error('Failed to load conversations:', e);
+  }
+}
+
+async function startNewChat() {
+  try {
+    const res = await fetch('/api/conversations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'New Chat' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      currentConversationId = data.id;
+      conversation = [];
+      messagesEl.innerHTML = '';
+      if (welcomeScreen) welcomeScreen.style.display = 'flex';
+      renderHistoryDropdown();
+      showToast('Started new chat', 'success');
+    }
+  } catch (e) {
+    showToast('Failed to create chat', 'error');
+  }
+}
+window.startNewChat = startNewChat;
+
+async function loadConversation(convId) {
+  try {
+    const res = await fetch(`/api/conversations/${convId}`);
+    const data = await res.json();
+    if (data.conversation) {
+      currentConversationId = convId;
+      conversation = data.messages.map(m => ({ role: m.role, content: m.content }));
+      messagesEl.innerHTML = '';
+      if (welcomeScreen) welcomeScreen.style.display = conversation.length ? 'none' : 'flex';
+      conversation.forEach(m => addMsg(m.role, m.content));
+      renderHistoryDropdown();
+      // Close dropdown
+      const dropdown = document.getElementById('historyDropdown');
+      if (dropdown) dropdown.style.display = 'none';
+    }
+  } catch (e) {
+    showToast('Failed to load conversation', 'error');
+  }
+}
+window.loadConversation = loadConversation;
+
+async function deleteConversation(convId, event) {
+  if (event) event.stopPropagation();
+  try {
+    await fetch(`/api/conversations/${convId}`, { method: 'DELETE' });
+    conversations = conversations.filter(c => c.id !== convId);
+    if (currentConversationId === convId) {
+      currentConversationId = null;
+      conversation = [];
+      messagesEl.innerHTML = '';
+      if (welcomeScreen) welcomeScreen.style.display = 'flex';
+    }
+    renderHistoryDropdown();
+    showToast('Conversation deleted', 'success');
+  } catch (e) {
+    showToast('Failed to delete conversation', 'error');
+  }
+}
+window.deleteConversation = deleteConversation;
+
+function renderHistoryDropdown() {
+  const list = document.getElementById('historyDropdownList');
+  const empty = document.getElementById('historyDropdownEmpty');
+  if (!list) return;
+  
+  list.innerHTML = '';
+  
+  if (conversations.length === 0) {
+    list.style.display = 'none';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  
+  list.style.display = 'block';
+  if (empty) empty.style.display = 'none';
+  
+  conversations.slice(0, 10).forEach(conv => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.style.cssText = 'padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;cursor:pointer;';
+    item.innerHTML = `
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(conv.title)}</span>
+      <span style="font-size:11px;color:#6b7280;margin-left:8px;">${conv.message_count || 0} msgs</span>
+      <button onclick="deleteConversation('${conv.id}', event)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;margin-left:8px;opacity:0.5;">×</button>
+    `;
+    item.onclick = (e) => {
+      if (e.target.tagName !== 'BUTTON') {
+        loadConversation(conv.id);
+      }
+    };
+    list.appendChild(item);
+  });
+}
+
+// ========================================
 // NeuralAI UX & Accessibility Features
 // ========================================
 
@@ -2580,7 +2730,7 @@ window.addEventListener('online', () => showToast('Back online!', 'success'));
 // Initialize UX features
 document.addEventListener('DOMContentLoaded', () => {
   loadDarkMode();
-  loadSavedConversation();
+  loadConversations(); // Load from SQLite instead of localStorage
   showOnboarding();
   setupMobileSidebar();
   setInterval(saveConversation, 10000);
