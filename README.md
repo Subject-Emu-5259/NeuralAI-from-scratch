@@ -62,6 +62,74 @@ Fine-tuned from SmolLM2-360M-Instruct with QLoRA — 360M parameters, optimized 
 
 ---
 
+## 💾 Persistence & Memory (v4.0)
+
+NeuralAI v4.0 introduces full persistence with SQLite:
+
+### 🗄️ Database Storage
+| Table | Purpose |
+|---|---|
+| **conversations** | Chat history with titles and timestamps |
+| **messages** | Individual messages linked to conversations |
+| **user_settings** | Persistent user preferences |
+| **memory_facts** | Long-term memory facts about the user |
+| **custom_rules** | User-defined rules for AI behavior |
+
+### 💬 Conversation Management
+| Feature | Description |
+|---|---|
+| **List Conversations** | View all past chats with titles |
+| **Create New** | Start fresh conversations |
+| **Rename** | Custom titles for each chat |
+| **Delete** | Remove old conversations |
+| **History** | Full message history per conversation |
+
+### 🧠 Persistent Memory
+| Feature | Description |
+|---|---|
+| **Memory Facts** | Store facts about user that persist across sessions |
+| **Categories** | Organize facts by category |
+| **Auto-injection** | Facts automatically included in system prompt |
+
+### ⚙️ User Settings
+| Setting | Description |
+|---|---|
+| **model_name** | Active model selection |
+| **model_temperature** | Response randomness (0-1) |
+| **model_max_tokens** | Max response length |
+| **theme** | Light/dark mode preference |
+| **user_bio** | User profile for personalization |
+
+---
+
+## 🔄 New Endpoints (v4.0)
+
+### Conversation Management
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/conversations` | GET | List all conversations |
+| `/api/conversations` | POST | Create new conversation |
+| `/api/conversations/<id>` | GET | Get conversation with messages |
+| `/api/conversations/<id>` | DELETE | Delete conversation |
+| `/api/conversations/<id>/rename` | POST | Rename conversation |
+| `/api/conversations/<id>/messages` | POST | Add message to conversation |
+
+### Settings & Memory
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/settings` | GET | Get all user settings |
+| `/api/settings` | POST | Update user settings |
+| `/api/settings/<key>` | GET | Get specific setting |
+| `/api/memory` | GET | List all memory facts |
+| `/api/memory` | POST | Add memory fact |
+| `/api/memory/<id>` | DELETE | Delete memory fact |
+| `/api/rules` | GET | List custom rules |
+| `/api/rules` | POST | Add custom rule |
+| `/api/rules/<id>` | DELETE | Delete rule |
+| `/api/rules/<id>/toggle` | POST | Enable/disable rule |
+
+---
+
 ## 🏗️ Architecture
 
 ```
@@ -123,7 +191,8 @@ NeuralAI-from-scratch/
     ├── training/
     │   └── train_neuralai.py   ← QLoRA fine-tuning script
     └── web_ui/
-        ├── app.py              ← Flask backend (chat, RAG, terminal, uplink)
+        ├── app.py              ← Flask backend (chat, RAG, terminal, uplink, persistence)
+        ├── neuralai.db         ← SQLite database (v4.0)
         ├── rag.py              ← RAG: embedding, chunking, retrieval
         ├── terminal.py         ← PTY terminal via WebSocket/Flask
         ├── templates/
@@ -228,9 +297,9 @@ MIT License — free to use, modify, and commercialize.
 
 **Built with ❤️ by [Subject-Emu-5259](https://github.com/Subject-Emu-5259)**
 
-**Project is owned, Made and Built by DeAndrew P Harris a Collage Student of Maestro Collage for AI Engineering**
+**Project is owned, Made and Built by DeAndrew P Harris a College Student of Maestro College for AI Engineering**
 
-*Last Updated: April 29, 2026 | Version: 3.0 | Status: Production* 🟢
+*Last Updated: April 30, 2026 | Version: 4.0 | Status: Production* 🟢
 
 </div>
 
@@ -365,8 +434,8 @@ web_ui/
 
 **Built with ❤️ by [Subject-Emu-5259](https://github.com/Subject-Emu-5259)**
 
-**Project is owned, Made and Built by DeAndrew P Harris a Collage Student of Maestro Collage for AI Engineering**
+**Project is owned, Made and Built by DeAndrew P Harris a College Student of Maestro College for AI Engineering**
 
-*Last Updated: April 29, 2026 | Version: 3.0 | Status: Production* 🟢
+*Last Updated: April 30, 2026 | Version: 4.0 | Status: Production* 🟢
 
 </div>

@@ -1,11 +1,14 @@
+# NeuralAI Web UI v4.0 - Enhanced with Persistence, Memory, and Settings
 import hashlib
 import json
 import os
 import time
-import asyncio
+import sqlite3
 from pathlib import Path
+from datetime import datetime
+from typing import Optional
 
-from flask import Flask, Response, jsonify, render_template, request, stream_with_context
+from flask import Flask, Response, jsonify, render_template, request, stream_with_context, g
 from werkzeug.utils import secure_filename
 
 # NeuralAI Engine - Router + Local Model + Uplink + Tools
@@ -60,13 +63,16 @@ BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_FOLDER = BASE_DIR / "uploads"
 UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
 
+# Database path
+DATABASE = BASE_DIR / "neuralai.db"
+
 MODEL_PATH = os.environ.get("MODEL_PATH", str(BASE_DIR.parent.parent / "checkpoints" / "final_model"))
 MODEL_NAME = os.environ.get("MODEL_NAME", "HuggingFaceTB/SmolLM2-360M-Instruct")
 UPLINK_URL = os.environ.get("UPLINK_URL", "http://localhost:7000")
 PORT = int(os.environ.get("PORT", "5000"))
 ALLOWED = {".pdf", ".docx", ".doc", ".txt", ".md"}
 REGISTRY_FILE = BASE_DIR / ".indexed_files.json"
-VERSION = os.environ.get("NEURALAI_VERSION", "3.0")
+VERSION = os.environ.get("NEURALAI_VERSION", "4.0")
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
@@ -77,6 +83,364 @@ INDEXED_FILES: dict[str, str] = {}
 model = None
 tokenizer = None
 model_error: str | None = None
+
+
+# ========================================
+# DATABASE LAYER
+# ========================================
+
+def get_db():
+    """Get database connection."""
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(str(DATABASE))
+        db.row_factory = sqlite3.Row
+    return db
+
+
+@app.teardown_appcontext
+def close_connection(exception):
+    """Close database connection."""
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+
+def init_db():
+    """Initialize database tables."""
+    db = get_db()
+    db.executescript("""
+        -- Conversations table
+        CREATE TABLE IF NOT EXISTS conversations (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            message_count INTEGER DEFAULT 0
+        );
+        
+        -- Messages table
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            conversation_id TEXT NOT NULL,
+            role TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (conversation_id) REFERENCES conversations(id)
+        );
+        
+        -- User settings table
+        CREATE TABLE IF NOT EXISTS user_settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+        
+        -- Memory facts table
+        CREATE TABLE IF NOT EXISTS memory_facts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fact TEXT NOT NULL,
+            category TEXT DEFAULT 'general',
+            created_at TEXT NOT NULL,
+            importance INTEGER DEFAULT 0
+        );
+        
+        -- Model rules table
+        CREATE TABLE IF NOT EXISTS model_rules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            rule TEXT NOT NULL,
+            is_active INTEGER DEFAULT 1,
+            created_at TEXT NOT NULL
+        );
+        
+        -- Create indexes
+        CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id);
+        CREATE INDEX IF NOT EXISTS idx_memory_category ON memory_facts(category);
+    """)
+    db.commit()
+    
+    # Initialize default settings if not exist
+    defaults = {
+        "user_bio": "A curious user exploring AI capabilities.",
+        "model_temperature": "0.7",
+        "model_max_tokens": "512",
+        "model_name": "SmolLM2-360M-Instruct",
+        "theme": "dark",
+        "auto_save": "true",
+    }
+    now = datetime.utcnow().isoformat()
+    for key, value in defaults.items():
+        try:
+            db.execute(
+                "INSERT OR IGNORE INTO user_settings (key, value, updated_at) VALUES (?, ?, ?)",
+                (key, value, now)
+            )
+        except:
+            pass
+    db.commit()
+
+
+def generate_conv_id() -> str:
+    """Generate unique conversation ID."""
+    import uuid
+    return f"conv_{uuid.uuid4().hex[:12]}"
+
+
+# ========================================
+# SETTINGS API
+# ========================================
+
+@app.route("/api/settings", methods=["GET"])
+def get_settings():
+    """Get all user settings."""
+    db = get_db()
+    rows = db.execute("SELECT key, value FROM user_settings").fetchall()
+    settings = {row["key"]: row["value"] for row in rows}
+    return jsonify({"settings": settings})
+
+
+@app.route("/api/settings", methods=["POST"])
+def update_settings():
+    """Update user settings."""
+    data = request.get_json(silent=True) or {}
+    db = get_db()
+    now = datetime.utcnow().isoformat()
+    
+    for key, value in data.items():
+        db.execute(
+            "INSERT OR REPLACE INTO user_settings (key, value, updated_at) VALUES (?, ?, ?)",
+            (key, str(value), now)
+        )
+    db.commit()
+    return jsonify({"success": True, "updated": list(data.keys())})
+
+
+@app.route("/api/settings/<key>", methods=["GET"])
+def get_setting(key):
+    """Get single setting."""
+    db = get_db()
+    row = db.execute("SELECT value FROM user_settings WHERE key = ?", (key,)).fetchone()
+    if row:
+        return jsonify({"key": key, "value": row["value"]})
+    return jsonify({"error": "Setting not found"}), 404
+
+
+# ========================================
+# MEMORY API
+# ========================================
+
+@app.route("/api/memory", methods=["GET"])
+def get_memory():
+    """Get all memory facts."""
+    db = get_db()
+    rows = db.execute(
+        "SELECT id, fact, category, importance, created_at FROM memory_facts ORDER BY importance DESC, created_at DESC"
+    ).fetchall()
+    facts = [dict(row) for row in rows]
+    return jsonify({"facts": facts})
+
+
+@app.route("/api/memory", methods=["POST"])
+def add_memory():
+    """Add a memory fact."""
+    data = request.get_json(silent=True) or {}
+    fact = data.get("fact", "").strip()
+    category = data.get("category", "general")
+    importance = data.get("importance", 0)
+    
+    if not fact:
+        return jsonify({"error": "Fact is required"}), 400
+    
+    db = get_db()
+    now = datetime.utcnow().isoformat()
+    cursor = db.execute(
+        "INSERT INTO memory_facts (fact, category, importance, created_at) VALUES (?, ?, ?, ?)",
+        (fact, category, importance, now)
+    )
+    db.commit()
+    return jsonify({"success": True, "id": cursor.lastrowid, "fact": fact})
+
+
+@app.route("/api/memory/<int:fact_id>", methods=["DELETE"])
+def delete_memory(fact_id):
+    """Delete a memory fact."""
+    db = get_db()
+    db.execute("DELETE FROM memory_facts WHERE id = ?", (fact_id,))
+    db.commit()
+    return jsonify({"success": True})
+
+
+# ========================================
+# RULES API
+# ========================================
+
+@app.route("/api/rules", methods=["GET"])
+def get_rules():
+    """Get all model rules."""
+    db = get_db()
+    rows = db.execute("SELECT id, rule, is_active, created_at FROM model_rules ORDER BY created_at DESC").fetchall()
+    rules = [dict(row) for row in rows]
+    return jsonify({"rules": rules})
+
+
+@app.route("/api/rules", methods=["POST"])
+def add_rule():
+    """Add a model rule."""
+    data = request.get_json(silent=True) or {}
+    rule = data.get("rule", "").strip()
+    is_active = data.get("is_active", 1)
+    
+    if not rule:
+        return jsonify({"error": "Rule is required"}), 400
+    
+    db = get_db()
+    now = datetime.utcnow().isoformat()
+    cursor = db.execute(
+        "INSERT INTO model_rules (rule, is_active, created_at) VALUES (?, ?, ?)",
+        (rule, is_active, now)
+    )
+    db.commit()
+    return jsonify({"success": True, "id": cursor.lastrowid})
+
+
+@app.route("/api/rules/<int:rule_id>", methods=["DELETE"])
+def delete_rule(rule_id):
+    """Delete a model rule."""
+    db = get_db()
+    db.execute("DELETE FROM model_rules WHERE id = ?", (rule_id,))
+    db.commit()
+    return jsonify({"success": True})
+
+
+@app.route("/api/rules/<int:rule_id>/toggle", methods=["POST"])
+def toggle_rule(rule_id):
+    """Toggle rule active state."""
+    db = get_db()
+    row = db.execute("SELECT is_active FROM model_rules WHERE id = ?", (rule_id,)).fetchone()
+    if not row:
+        return jsonify({"error": "Rule not found"}), 404
+    
+    new_state = 0 if row["is_active"] else 1
+    db.execute("UPDATE model_rules SET is_active = ? WHERE id = ?", (new_state, rule_id))
+    db.commit()
+    return jsonify({"success": True, "is_active": new_state})
+
+
+# ========================================
+# CONVERSATIONS API
+# ========================================
+
+@app.route("/api/conversations", methods=["GET"])
+def list_conversations():
+    """List all conversations."""
+    db = get_db()
+    rows = db.execute(
+        "SELECT id, title, created_at, updated_at, message_count FROM conversations ORDER BY updated_at DESC LIMIT 50"
+    ).fetchall()
+    conversations = [dict(row) for row in rows]
+    return jsonify({"conversations": conversations})
+
+
+@app.route("/api/conversations", methods=["POST"])
+def create_conversation():
+    """Create new conversation."""
+    data = request.get_json(silent=True) or {}
+    title = data.get("title", "New Chat")
+    
+    conv_id = generate_conv_id()
+    now = datetime.utcnow().isoformat()
+    
+    db = get_db()
+    db.execute(
+        "INSERT INTO conversations (id, title, created_at, updated_at, message_count) VALUES (?, ?, ?, ?, 0)",
+        (conv_id, title, now, now)
+    )
+    db.commit()
+    return jsonify({"success": True, "id": conv_id, "title": title})
+
+
+@app.route("/api/conversations/<conv_id>", methods=["GET"])
+def get_conversation(conv_id):
+    """Get conversation with messages."""
+    db = get_db()
+    
+    conv = db.execute("SELECT * FROM conversations WHERE id = ?", (conv_id,)).fetchone()
+    if not conv:
+        return jsonify({"error": "Conversation not found"}), 404
+    
+    messages = db.execute(
+        "SELECT role, content, created_at FROM messages WHERE conversation_id = ? ORDER BY id ASC",
+        (conv_id,)
+    ).fetchall()
+    
+    return jsonify({
+        "conversation": dict(conv),
+        "messages": [dict(m) for m in messages]
+    })
+
+
+@app.route("/api/conversations/<conv_id>", methods=["DELETE"])
+def delete_conversation(conv_id):
+    """Delete conversation and its messages."""
+    db = get_db()
+    db.execute("DELETE FROM messages WHERE conversation_id = ?", (conv_id,))
+    db.execute("DELETE FROM conversations WHERE id = ?", (conv_id,))
+    db.commit()
+    return jsonify({"success": True})
+
+
+@app.route("/api/conversations/<conv_id>/rename", methods=["POST"])
+def rename_conversation(conv_id):
+    """Rename conversation."""
+    data = request.get_json(silent=True) or {}
+    title = data.get("title", "Untitled")
+    
+    db = get_db()
+    db.execute("UPDATE conversations SET title = ?, updated_at = ? WHERE id = ?", 
+               (title, datetime.utcnow().isoformat(), conv_id))
+    db.commit()
+    return jsonify({"success": True})
+
+
+@app.route("/api/conversations/<conv_id>/messages", methods=["POST"])
+def add_message(conv_id):
+    """Add message to conversation."""
+    data = request.get_json(silent=True) or {}
+    role = data.get("role", "user")
+    content = data.get("content", "")
+    
+    if not content:
+        return jsonify({"error": "Content required"}), 400
+    
+    db = get_db()
+    now = datetime.utcnow().isoformat()
+    
+    # Add message
+    db.execute(
+        "INSERT INTO messages (conversation_id, role, content, created_at) VALUES (?, ?, ?, ?)",
+        (conv_id, role, content, now)
+    )
+    
+    # Update conversation stats
+    db.execute(
+        "UPDATE conversations SET updated_at = ?, message_count = message_count + 1 WHERE id = ?",
+        (now, conv_id)
+    )
+    
+    # Auto-rename if first user message
+    if role == "user":
+        count = db.execute("SELECT COUNT(*) as cnt FROM messages WHERE conversation_id = ? AND role = 'user'", (conv_id,)).fetchone()
+        if count["cnt"] == 1:
+            title = content[:40] + ("..." if len(content) > 40 else "")
+            db.execute("UPDATE conversations SET title = ? WHERE id = ?", (title, conv_id))
+    
+    db.commit()
+    return jsonify({"success": True})
+
+
+# ========================================
+# FILE SYSTEM HELPERS
+# ========================================
 
 def load_registry() -> dict[str, str]:
     if REGISTRY_FILE.exists():
@@ -171,6 +535,39 @@ def load_model() -> None:
         print(f"[NeuralAI] Model load failed: {exc}")
 
 
+def get_system_prompt() -> str:
+    """Build system prompt from user bio, memory, and rules."""
+    db = get_db()
+    
+    # Get user bio
+    bio_row = db.execute("SELECT value FROM user_settings WHERE key = 'user_bio'").fetchone()
+    user_bio = bio_row["value"] if bio_row else ""
+    
+    # Get active rules
+    rules_rows = db.execute("SELECT rule FROM model_rules WHERE is_active = 1").fetchall()
+    rules = [r["rule"] for r in rules_rows]
+    
+    # Get top memory facts
+    memory_rows = db.execute(
+        "SELECT fact FROM memory_facts ORDER BY importance DESC LIMIT 10"
+    ).fetchall()
+    memories = [m["fact"] for m in memory_rows]
+    
+    # Build prompt
+    base = "You are NeuralAI, a helpful AI assistant."
+    
+    if user_bio:
+        base += f"\n\n## User Profile\n{user_bio}"
+    
+    if memories:
+        base += "\n\n## What you know about the user\n" + "\n".join(f"- {m}" for m in memories)
+    
+    if rules:
+        base += "\n\n## Behavioral Guidelines\n" + "\n".join(f"- {r}" for r in rules)
+    
+    return base
+
+
 def build_doc_context(user_content: str, file_ids: list[str]) -> str:
     if not file_ids:
         return ""
@@ -185,20 +582,12 @@ def build_doc_context(user_content: str, file_ids: list[str]) -> str:
 
 
 def build_prompt(messages: list[dict], user_content: str, doc_context: str) -> str:
-    # Base system prompt - friendly assistant
-    system_content = (
-        "You are NeuralAI, a friendly AI assistant. "
-        "Greet users warmly. Answer questions helpfully. "
-        "Be natural and conversational. "
-        "If the user asks about a file or document, you can help with that too."
-    )
-    # Add document context only when files are attached
+    # Get dynamic system prompt
+    system_content = get_system_prompt()
+    
+    # Add document context if files attached
     if doc_context:
-        system_content = (
-            "You are NeuralAI, a helpful AI assistant. "
-            "The user has attached documents. Use the document context below to answer questions about those files accurately. "
-            "For general questions, respond normally and naturally."
-        ) + doc_context
+        system_content += "\n\n" + doc_context
 
     enriched_chat = [{"role": "system", "content": system_content}]
     for msg in messages:
@@ -272,14 +661,18 @@ except Exception:
     pass
 
 
+# ========================================
+# ROUTES
+# ========================================
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
-
 
 
 @app.route("/api/status", methods=["GET"])
@@ -294,6 +687,7 @@ def status():
             "uplink": "connected" if requests is not None else "offline",
             "indexed_files": len(INDEXED_FILES),
             "model_error": model_error,
+            "features": ["memory", "rules", "settings", "conversations"],
         }
     )
 
@@ -360,8 +754,15 @@ def chat():
     data = request.get_json(silent=True) or {}
     messages = data.get("messages", []) or []
     prompt_only = data.get("prompt", "")
-    max_new_tokens = int(data.get("max_tokens", 512))
-    temperature = float(data.get("temperature", 0.7))
+    conv_id = data.get("conversation_id")  # NEW: conversation ID for persistence
+    
+    # Get settings from DB
+    db = get_db()
+    temp_row = db.execute("SELECT value FROM user_settings WHERE key = 'model_temperature'").fetchone()
+    tokens_row = db.execute("SELECT value FROM user_settings WHERE key = 'model_max_tokens'").fetchone()
+    
+    max_new_tokens = int(data.get("max_tokens", tokens_row["value"] if tokens_row else 512))
+    temperature = float(data.get("temperature", temp_row["value"] if temp_row else 0.7))
     file_ids = data.get("file_ids", []) or []
 
     def generate():
@@ -377,24 +778,55 @@ def chat():
             yield "data: [DONE]\n\n"
             return
 
+        # Save user message to conversation
+        if conv_id:
+            now = datetime.utcnow().isoformat()
+            db_inner = get_db()
+            db_inner.execute(
+                "INSERT INTO messages (conversation_id, role, content, created_at) VALUES (?, ?, ?, ?)",
+                (conv_id, "user", user_content, now)
+            )
+            db_inner.execute(
+                "UPDATE conversations SET updated_at = ?, message_count = message_count + 1 WHERE id = ?",
+                (now, conv_id)
+            )
+            # Auto-rename if first message
+            count = db_inner.execute("SELECT COUNT(*) as cnt FROM messages WHERE conversation_id = ? AND role = 'user'", (conv_id,)).fetchone()
+            if count["cnt"] == 1:
+                title = user_content[:40] + ("..." if len(user_content) > 40 else "")
+                db_inner.execute("UPDATE conversations SET title = ? WHERE id = ?", (title, conv_id))
+            db_inner.commit()
+
         # NEW ROUTING: Use clean router
         route, tool = neuralai_route(user_content)
 
         if route == "tool" and tool == "terminal":
-            # Terminal execution - real shell, not uplink
             cmd = strip_terminal_prefix(user_content)
             yield f"data: {json.dumps({'content': f'[Terminal] Executing: {cmd}\\n'})}\n\n"
-            # For now, return a message - real terminal integration via terminal_bp
             yield f"data: {json.dumps({'content': 'Use the Terminal tab for shell commands.\\n'})}\n\n"
             yield "data: [DONE]\n\n"
             return
 
         if route == "uplink":
-            # Uplink for heavy tasks only
             yield f"data: {json.dumps({'content': '[Neural Uplink] Routing to agent network...\\n'})}\n\n"
             agent_response = query_uplink(user_content, messages)
             for chunk in stream_words(agent_response):
                 yield chunk
+            
+            # Save assistant response
+            if conv_id:
+                now = datetime.utcnow().isoformat()
+                db_inner = get_db()
+                db_inner.execute(
+                    "INSERT INTO messages (conversation_id, role, content, created_at) VALUES (?, ?, ?, ?)",
+                    (conv_id, "assistant", agent_response, now)
+                )
+                db_inner.execute(
+                    "UPDATE conversations SET updated_at = ?, message_count = message_count + 1 WHERE id = ?",
+                    (now, conv_id)
+                )
+                db_inner.commit()
+            
             yield "data: [DONE]\n\n"
             return
 
@@ -403,6 +835,21 @@ def chat():
         answer = answer_with_model(messages, user_content, doc_context, max_new_tokens, temperature)
         for chunk in stream_words(answer):
             yield chunk
+        
+        # Save assistant response
+        if conv_id:
+            now = datetime.utcnow().isoformat()
+            db_inner = get_db()
+            db_inner.execute(
+                "INSERT INTO messages (conversation_id, role, content, created_at) VALUES (?, ?, ?, ?)",
+                (conv_id, "assistant", answer, now)
+            )
+            db_inner.execute(
+                "UPDATE conversations SET updated_at = ?, message_count = message_count + 1 WHERE id = ?",
+                (now, conv_id)
+            )
+            db_inner.commit()
+        
         yield "data: [DONE]\n\n"
 
     headers = {
@@ -410,6 +857,12 @@ def chat():
         "X-Accel-Buffering": "no",
     }
     return Response(stream_with_context(generate()), mimetype="text/event-stream", headers=headers)
+
+
+# Initialize database on startup
+with app.app_context():
+    init_db()
+    print(f"[NeuralAI] Database initialized at {DATABASE}")
 
 
 if __name__ == "__main__":

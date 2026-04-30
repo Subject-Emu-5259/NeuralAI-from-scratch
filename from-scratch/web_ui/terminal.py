@@ -75,9 +75,12 @@ class TerminalSession:
         self.env = os.environ.copy()
         self.env["TERM"] = "xterm-256color"
         self.env["HOME"] = os.path.expanduser("~")
-        self.env["USER"] = os.environ.get("USER", "root")
+        self.env["USER"] = os.environ.get("USER", "neural")
         self.env["EDITOR"] = "nano"
         self.env["PAGER"] = "less"
+        # NeuralAI Terminal Prompt - Root@Neural style
+        self.env["PS1"] = "\\[\\033[1;32m\\]root@Neural\\[\\033[0m\\]:\\[\\033[1;36m\\]\\w\\[\\033[0m\\]# "
+        self.env["PROMPT_COMMAND"] = ""
         self.buffer = []  # scrollback buffer
         self.buffer_size = 5000
         self.history = []

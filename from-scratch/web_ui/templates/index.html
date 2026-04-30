@@ -3,9 +3,31 @@
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png">
 <meta charset="UTF-8" />
-<title>NeuralAI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<!-- Build: 1777537062 -->
+<title>NeuralAI LIVE</title>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 <style>
+:root {
+  --gray-50: #f8f9fa;
+  --gray-100: #f1f3f4;
+  --gray-200: #e8eaed;
+  --gray-300: #dadce0;
+  --gray-400: #bdc1c6;
+  --gray-500: #9aa0a6;
+  --gray-600: #80868b;
+  --gray-700: #5f6368;
+  --gray-800: #3c4043;
+  --gray-900: #202124;
+  --white: #ffffff;
+  --google-blue: #1a73e8;
+  --google-red: #ea4335;
+  --google-green: #34a853;
+  --google-yellow: #fbbc04;
+}
 * {
   box-sizing: border-box;
   margin: 0;
@@ -16,6 +38,129 @@
 body {
   background: #f8f9fa;
   color: #202124;
+}
+
+/* Dark Mode - Applied to body */
+body.dark-mode {
+  background: #09090b;
+  color: #e4e4e7;
+}
+
+body.dark-mode .topbar {
+  background: #111117;
+  border-bottom-color: rgba(255,255,255,0.07);
+}
+
+
+body.dark-mode .product-name {
+  color: #a78bfa;
+}
+
+body.dark-mode .top-btn {
+  color: #a78bfa;
+}
+
+body.dark-mode .top-btn:hover {
+  background: rgba(124,58,237,0.15);
+}
+
+body.dark-mode .sidebar {
+  background: #111117;
+  border-right-color: rgba(255,255,255,0.07);
+}
+
+body.dark-mode .content {
+  background: #09090b;
+}
+
+body.dark-mode .search-box {
+  background: #000000;
+  border-color: rgba(255,255,255,0.1);
+}
+
+body.dark-mode .search-box input {
+  color: #e4e4e7;
+  background: transparent;
+}
+
+body.dark-mode .search-box input::placeholder {
+  color: #6b7280;
+}
+
+body.dark-mode .search-box button {
+  background: #7c3aed;
+}
+
+body.dark-mode .search-box button:hover {
+  background: #6d28d9;
+}
+
+body.dark-mode .nav-item:hover {
+  background: rgba(124,58,237,0.15);
+}
+
+body.dark-mode .nav-item.active {
+  background: rgba(124,58,237,0.2);
+  color: #a78bfa;
+}
+
+body.dark-mode .result-card {
+  background: #161b22;
+  border-color: rgba(255,255,255,0.07);
+}
+
+body.dark-mode .result-title {
+  color: #a78bfa;
+}
+
+body.dark-mode .result-snippet {
+  color: #8a8a9a;
+}
+
+body.dark-mode .msg.ai {
+  background: #161b22;
+  border-color: rgba(255,255,255,0.07);
+  color: #e4e4e7;
+}
+
+body.dark-mode .msg.user {
+  background: linear-gradient(135deg, #1e1b4b, #0f172a);
+  color: #e0e7ff;
+}
+
+body.dark-mode .chat-input-bar {
+  background: linear-gradient(to top, #09090b, rgba(9,9,11,0.95));
+  border-top-color: rgba(255,255,255,0.07);
+}
+
+body.dark-mode .chat-input-bar textarea {
+  background: #161b22;
+  border-color: rgba(255,255,255,0.07);
+  color: #e4e4e7;
+}
+
+body.dark-mode .files-section {
+  background: #09090b;
+}
+
+body.dark-mode .file-card {
+  background: #161b22;
+  border-color: rgba(255,255,255,0.07);
+}
+
+body.dark-mode .file-name {
+  color: #e4e4e7;
+}
+
+body.dark-mode .tab.active {
+  color: #a78bfa;
+  border-bottom-color: #7c3aed;
+}
+
+/* History Dropdown Dark Mode */
+body.dark-mode #historyDropdown {
+  background: #161b22;
+  border-color: rgba(255,255,255,0.1);
 }
 
 /* Top bar */
@@ -38,11 +183,6 @@ body {
   gap: 8px;
 }
 
-.logo {
-  font-weight: 700;
-  font-size: 20px;
-  color: #1a73e8;
-}
 
 .product-name {
   font-size: 16px;
@@ -69,23 +209,12 @@ body {
   background: #f1f3f4;
 }
 
-.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #1a73e8, #34a853);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 500;
-}
 
 /* Layout */
 .layout {
   display: flex;
   min-height: calc(100vh - 56px);
+  justify-content: center;
 }
 
 /* Sidebar */
@@ -135,6 +264,74 @@ body {
 .nav-item.active {
   background: #e8f0fe;
   color: #1a73e8;
+}
+
+/* History Items */
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #202124;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 4px;
+}
+
+.history-item:hover {
+  background: #f1f3f4;
+}
+
+.history-item.active {
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+
+body.dark-mode .history-item {
+  color: #e4e4e7;
+}
+
+body.dark-mode .history-item:hover {
+  background: rgba(124,58,237,0.15);
+}
+
+body.dark-mode .history-item.active {
+  background: rgba(124,58,237,0.2);
+  color: #a78bfa;
+}
+
+.history-item-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-item-meta {
+  font-size: 11px;
+  color: #6b7280;
+  margin-left: 8px;
+}
+
+.history-item-delete {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.history-item:hover .history-item-delete {
+  opacity: 1;
+}
+
+.history-item-delete:hover {
+  color: #ef4444;
 }
 
 /* Uplink */
@@ -207,42 +404,50 @@ body {
   transform: translateX(18px);
 }
 
-/* Content */
+/* Content - FILL SCREEN */
 .content {
   flex: 1;
-  padding: 24px 40px 80px;
+  padding: 24px 32px 100px;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Search */
+/* Search - WIDER AND FLATTER */
 .search-wrapper {
-  max-width: 720px;
-  margin: 0 auto 16px;
+  max-width: none;
+  width: 100%;
+  margin: 0 auto 20px;
+  padding: 0 16px;
 }
 
 .search-box {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   background: #fff;
-  border-radius: 24px;
+  border-radius: 16px;
   border: 1px solid #dadce0;
-  padding: 6px 12px;
-  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.15);
+  padding: 8px 12px;
+  box-shadow: 0 2px 4px rgba(60, 64, 67, 0.15);
 }
 
 .search-box input {
   flex: 1;
   border: none;
   outline: none;
-  font-size: 15px;
+  font-size: 16px;
+  padding: 4px 0;
 }
 
 .search-box button {
   border: none;
   background: #1a73e8;
   color: #fff;
-  padding: 6px 14px;
-  border-radius: 18px;
+  padding: 8px 20px;
+  border-radius: 16px;
   font-size: 14px;
   cursor: pointer;
 }
@@ -273,10 +478,12 @@ body {
   border-bottom-color: #1a73e8;
 }
 
-/* Results / Chat */
+/* Results / Chat - FILL WIDTH */
 .results {
-  max-width: 720px;
-  margin: 16px auto 0;
+  max-width: none;
+  width: 100%;
+  margin: 16px 0 0;
+  padding: 0 16px;
 }
 
 .result-card {
@@ -284,19 +491,19 @@ body {
 }
 
 .result-title {
-  font-size: 18px;
+  font-size: 22px;
   color: #1a0dab;
-  margin-bottom: 2px;
-}
-
-.result-url {
-  font-size: 13px;
-  color: #006621;
   margin-bottom: 4px;
 }
 
+.result-url {
+  font-size: 15px;
+  color: #006621;
+  margin-bottom: 6px;
+}
+
 .result-snippet {
-  font-size: 14px;
+  font-size: 16px;
   color: #4d5156;
 }
 
@@ -310,11 +517,11 @@ body {
 }
 
 .msg {
-  max-width: 80%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 14px;
-  line-height: 1.5;
+  max-width: 85%;
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .msg.user {
@@ -332,20 +539,20 @@ body {
 .msg pre {
   background: #202124;
   color: #e8eaed;
-  border-radius: 8px;
-  padding: 12px;
-  margin: 8px 0;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 10px 0;
   overflow-x: auto;
   font-family: 'Roboto Mono', monospace;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .msg code {
   background: #f1f3f4;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
   font-family: 'Roboto Mono', monospace;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .msg pre code {
@@ -353,17 +560,17 @@ body {
   padding: 0;
 }
 
-/* Bottom input bar */
+/* Bottom input bar - COMPACT */
 .chat-input-bar {
   position: fixed;
   left: 260px;
   right: 0;
   bottom: 0;
-  padding: 12px 40px;
+  padding: 8px 16px;
   background: linear-gradient(to top, #f8f9fa, rgba(248, 249, 250, 0.95));
   border-top: 1px solid #dadce0;
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: flex-end;
 }
 
@@ -380,20 +587,16 @@ body {
   font-family: inherit;
 }
 
-.chat-input-bar textarea:focus {
-  border-color: #1a73e8;
-  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
-}
-
 .chat-input-bar button {
   border: none;
-  background: #1a73e8;
+  background: linear-gradient(135deg,#ef4444,#dc2626);
   color: #fff;
   padding: 10px 20px;
   border-radius: 18px;
   font-size: 14px;
   cursor: pointer;
   font-weight: 500;
+  box-shadow: 0 2px 8px rgba(239,68,68,0.25);
 }
 
 .chat-input-bar button:hover {
@@ -405,10 +608,12 @@ body {
   cursor: not-allowed;
 }
 
-/* Files Tab */
+/* Files Tab - FILL WIDTH */
 .files-section {
-  max-width: 720px;
-  margin: 0 auto;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 0 16px;
 }
 
 .files-header {
@@ -419,19 +624,19 @@ body {
 }
 
 .files-header h2 {
-  font-size: 18px;
+  font-size: 22px;
   color: #202124;
 }
 
 .upload-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   border: 1px solid #dadce0;
   background: #fff;
-  padding: 8px 16px;
-  border-radius: 18px;
-  font-size: 13px;
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-size: 15px;
   color: #1a73e8;
   cursor: pointer;
 }
@@ -451,8 +656,8 @@ body {
   justify-content: space-between;
   background: #fff;
   border: 1px solid #dadce0;
-  border-radius: 8px;
-  padding: 12px 16px;
+  border-radius: 12px;
+  padding: 16px 20px;
 }
 
 .file-info {
@@ -462,10 +667,10 @@ body {
 }
 
 .file-icon {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   background: #e8f0fe;
-  border-radius: 8px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -473,12 +678,12 @@ body {
 }
 
 .file-name {
-  font-size: 14px;
+  font-size: 16px;
   color: #202124;
 }
 
 .file-meta {
-  font-size: 12px;
+  font-size: 14px;
   color: #5f6368;
 }
 
@@ -496,45 +701,159 @@ body {
   color: #ea4335;
 }
 
-/* Terminal */
-.terminal-section {
-  background: #202124;
-  border-radius: 8px;
-  max-width: 720px;
+
+/* Settings Tab */
+.settings-section {
+  max-width: 800px;
   margin: 0 auto;
-  min-height: 400px;
+  padding: 24px 16px;
+}
+
+.settings-header {
+  margin-bottom: 24px;
+}
+
+.settings-header h2 {
+  font-size: 24px;
+  color: #202124;
+  margin: 0;
+}
+
+.settings-card {
+  background: #fff;
+  border: 1px solid #dadce0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.settings-card h3 {
+  font-size: 16px;
+  color: #202124;
+  margin: 0 0 8px 0;
+}
+
+body.dark-mode .settings-card {
+  background: #161b22;
+  border-color: rgba(255,255,255,0.07);
+}
+
+body.dark-mode .settings-header h2 {
+  color: #e4e4e7;
+}
+
+body.dark-mode .settings-card h3 {
+  color: #e4e4e7;
+}
+
+.memory-item, .rule-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f1f3f4;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+body.dark-mode .memory-item, body.dark-mode .rule-item {
+  background: rgba(59,130,246,0.1);
+}
+
+.memory-item span, .rule-item span {
+  flex: 1;
+  font-size: 13px;
+  color: #202124;
+}
+
+body.dark-mode .memory-item span, body.dark-mode .rule-item span {
+  color: #e4e4e7;
+}
+
+.rule-toggle {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.rule-toggle.on {
+  background: #34a853;
+  color: #fff;
+}
+
+.rule-toggle.off {
+  background: #dadce0;
+  color: #5f6368;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ea4335;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 4px;
+}
+
+.delete-btn:hover {
+  color: #c5221f;
+}
+
+/* Terminal - FILL SCREEN */
+.terminal-section {
+  background: #0d1117;
+  border-radius: 12px;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  min-height: 500px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(48, 54, 61, 0.5);
+  overflow: hidden;
 }
 
 .terminal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
-  background: #303134;
-  border-radius: 8px 8px 0 0;
-  border-bottom: 1px solid #3c4043;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+  border-bottom: 1px solid #30363d;
 }
 
-.terminal-dots {
+.terminal-brand {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 12px;
 }
 
-.terminal-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+
+.terminal-brand-text {
+  display: flex;
+  flex-direction: column;
 }
 
-.dot-red { background: #ff5f57; }
-.dot-yellow { background: #febc2e; }
-.dot-green { background: #28c840; }
+.terminal-brand-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e6edf3;
+  font-family: 'Google Sans', system-ui, sans-serif;
+}
+
+.terminal-brand-sub {
+  font-size: 13px;
+  color: #7d8590;
+  font-family: 'Roboto Mono', monospace;
+}
 
 .terminal-title {
   font-size: 12px;
-  color: #9aa0a6;
+  color: #7d8590;
   font-family: 'Roboto Mono', monospace;
 }
 
@@ -544,47 +863,186 @@ body {
 }
 
 .term-btn {
-  border: 1px solid #3c4043;
+  border: 1px solid #30363d;
   background: transparent;
-  color: #9aa0a6;
-  padding: 4px 10px;
-  border-radius: 4px;
+  color: #7d8590;
+  padding: 6px 12px;
+  border-radius: 6px;
   font-size: 11px;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .term-btn:hover {
-  background: #3c4043;
-  color: #e8eaed;
+  background: #21262d;
+  color: #e6edf3;
+  border-color: #484f58;
+}
+
+.terminal-banner {
+  background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
+  padding: 24px;
+  border-bottom: 1px solid #21262d;
+  text-align: center;
+}
+
+.banner-logo {
+  font-family: 'Google Sans', system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.banner-bracket {
+  color: #30363d;
+}
+
+.banner-n { color: #3b82f6; }
+.banner-e { color: #10b981; }
+.banner-u { color: #22d3ee; }
+.banner-r { color: #a855f7; }
+.banner-a { color: #ef4444; }
+.banner-l { color: #f97316; }
+
+.banner-ai {
+  background: linear-gradient(135deg, #22d3ee 0%, #a855f7 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 32px;
+  margin-left: 4px;
+  font-weight: 800;
+}
+
+.banner-tagline {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  color: #7d8590;
+  letter-spacing: 1px;
+}
+
+.terminal-banner pre {
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+  text-align: left;
+}
+
+.terminal-banner-ascii {
+  color: #58a6ff;
+}
+
+.terminal-banner-green {
+  color: #3fb950;
+}
+
+.terminal-banner-cyan {
+  color: #39c5cf;
+}
+
+.terminal-banner-yellow {
+  color: #d29922;
+}
+
+.terminal-banner-magenta {
+  color: #bc8cff;
+}
+
+.terminal-banner-title {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  font-size: 11px;
+  color: #8b949e;
 }
 
 .terminal-output {
   flex: 1;
-  padding: 12px 16px;
-  font-family: 'Roboto Mono', monospace;
-  font-size: 13px;
-  color: #e8eaed;
+  padding: 20px 24px;
+  font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
+  font-size: 15px;
+  color: #c9d1d9;
   overflow-y: auto;
   white-space: pre-wrap;
+  background: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+}
+
+.term-line {
+  padding: 3px 0;
+  line-height: 1.7;
+}
+
+.term-line.input {
+  color: #58a6ff;
+}
+
+.term-line.success {
+  color: #3fb950;
+}
+
+.term-line.error {
+  color: #f85149;
+}
+
+.term-line.info {
+  color: #8b949e;
 }
 
 .terminal-input-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: #303134;
-  border-top: 1px solid #3c4043;
+  gap: 16px;
+  padding: 16px 24px;
+  background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
+  border-top: 1px solid #30363d;
 }
 
 .terminal-input-row input {
   flex: 1;
-  background: transparent;
-  border: none;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 14px 18px;
   outline: none;
-  color: #34a853;
-  font-family: 'Roboto Mono', monospace;
-  font-size: 13px;
+  color: #c9d1d9;
+  font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.terminal-input-row input:focus {
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+}
+
+.terminal-input-row input::placeholder {
+  color: #6e7681;
+}
+
+.terminal-prompt {
+  color: #58a6ff;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
+  font-size: 15px;
+}
+
+.terminal-run-btn {
+  border: none;
+  background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+  color: #fff;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.terminal-run-btn:hover {
+  background: linear-gradient(135deg, #2ea043 0%, #3fb950 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(46, 160, 67, 0.3);
 }
 
 /* Toast */
@@ -617,14 +1075,7 @@ body {
 /* Hidden */
 .hidden { display: none !important; }
 
-/* Terminal 2.0 Styles */
-.terminal-section {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: #0d1117;
-}
-
+/* Terminal 2.0 Styles - Tabs and Quick Commands only */
 .terminal-tabs {
   display: flex;
   gap: 2px;
@@ -681,7 +1132,7 @@ body {
 }
 
 .terminal-prompt {
-  color: #58a6ff;
+  color: #a78bfa;
   font-weight: bold;
   margin-right: 8px;
 }
@@ -762,143 +1213,51 @@ body {
 }
 
 .snippet-tab:hover {
+  background: #30363d;
   color: #c9d1d9;
 }
 
 .snippet-tab.active {
-  background: #388bfd;
+  background: #238636;
   color: white;
 }
 
-.snippet-item {
-  padding: 8px;
-  margin-bottom: 4px;
-  background: #21262d;
-  border-radius: 4px;
-  cursor: pointer;
+/* Sidebar Footer */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.sidebar-footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #5f6368;
+  text-decoration: none;
   transition: background 0.15s;
 }
 
-.snippet-item:hover {
-  background: #30363d;
+.sidebar-link:hover {
+  background: #f1f3f4;
 }
 
-.history-item {
-  padding: 8px;
-  margin-bottom: 4px;
-  background: #21262d;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #c9d1d9;
-  font-family: monospace;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+body.dark-mode .sidebar-link {
+  color: #8a8a9a;
 }
 
-.history-item:hover {
-  background: #30363d;
-}
-
-/* Syntax highlighting classes */
-.term-keyword { color: #ff7b72; }
-.term-string { color: #a5d6ff; }
-.term-number { color: #79c0ff; }
-.term-comment { color: #8b949e; font-style: italic; }
-.term-function { color: #d2a8ff; }
-.term-variable { color: #ffa657; }
-.term-operator { color: #ff7b72; }
-
-
-
-/* Onboarding Modal */
-.onboarding-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s, visibility 0.3s;
-}
-.onboarding-overlay.visible {
-  opacity: 1;
-  visibility: visible;
-}
-.onboarding-card {
-  background: var(--white);
-  border-radius: 16px;
-  padding: 32px;
-  max-width: 480px;
-  width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.4s ease;
-}
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-.onboarding-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--gray-900);
-  margin-bottom: 16px;
-  text-align: center;
-}
-.onboarding-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding: 12px;
-  border-radius: 12px;
-  background: var(--gray-50);
-  transition: background 0.2s;
-}
-.onboarding-step:hover {
-  background: var(--gray-100);
-}
-.onboarding-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-.onboarding-icon.chat { background: linear-gradient(135deg, var(--google-blue), #4285f4); }
-.onboarding-icon.files { background: linear-gradient(135deg, var(--google-green), #34a853); }
-.onboarding-icon.terminal { background: linear-gradient(135deg, #5f6368, #3c4043); }
-.onboarding-step h4 {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--gray-900);
-  margin-bottom: 4px;
-}
-.onboarding-step p {
-  font-size: 13px;
-  color: var(--gray-700);
-  line-height: 1.5;
-}
-.onboarding-close {
-  width: 100%;
-  padding: 12px;
-  background: var(--google-blue);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.onboarding-close:hover {
-  background: var(--google-blue-dark);
+body.dark-mode .sidebar-link:hover {
+  background: rgba(124,58,237,0.15);
+  color: #a78bfa;
 }
 
 /* Accessibility Improvements */
@@ -1125,22 +1484,162 @@ body {
   }
 }
 
-/* Privacy Notice Link */
-.privacy-link {
+/* Onboarding Modal Styles */
+.onboarding-overlay {
   position: fixed;
-  bottom: 16px;
-  right: 16px;
-  font-size: 11px;
-  color: var(--gray-500);
-  text-decoration: none;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-.privacy-link:hover {
-  opacity: 1;
-  color: var(--google-blue);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
+.onboarding-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.onboarding-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 40px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease;
+}
+
+body.dark-mode .onboarding-card {
+  background: #161b22;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.onboarding-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a73e8;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+body.dark-mode .onboarding-title {
+  color: #a78bfa;
+}
+
+.onboarding-step {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+}
+
+.onboarding-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.onboarding-icon.chat {
+  background: #e8f0fe;
+}
+
+.onboarding-icon.files {
+  background: #e6f4ea;
+}
+
+.onboarding-icon.terminal {
+  background: #fce8e6;
+}
+
+body.dark-mode .onboarding-icon.chat {
+  background: rgba(124, 58, 237, 0.2);
+}
+
+body.dark-mode .onboarding-icon.files {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+body.dark-mode .onboarding-icon.terminal {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.onboarding-step h4 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #202124;
+  margin-bottom: 4px;
+}
+
+body.dark-mode .onboarding-step h4 {
+  color: #e4e4e7;
+}
+
+.onboarding-step p {
+  font-size: 14px;
+  color: #5f6368;
+  line-height: 1.5;
+}
+
+body.dark-mode .onboarding-step p {
+  color: #8a8a9a;
+}
+
+.onboarding-close {
+  width: 100%;
+  padding: 14px 24px;
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.onboarding-close:hover {
+  background: #185abc;
+}
+
+body.dark-mode .onboarding-close {
+  background: #7c3aed;
+}
+
+body.dark-mode .onboarding-close:hover {
+  background: #6d28d9;
+}
+
+@media (max-width: 768px) {
+  .onboarding-card {
+    padding: 24px 20px;
+    margin: 20px;
+  }
+}
+
+@keyframes livePulse {
+  0%, 100% { 
+    opacity: 1; 
+    text-shadow: 0 0 8px rgba(239,68,68,0.6), 0 0 16px rgba(239,68,68,0.4);
+  }
+  50% { 
+    opacity: 0.7; 
+    text-shadow: 0 0 12px rgba(239,68,68,0.8), 0 0 24px rgba(239,68,68,0.6), 0 0 36px rgba(239,68,68,0.3);
+  }
+}
 </style>
 </head>
 <body>
@@ -1178,40 +1677,80 @@ body {
   </div>
 </div>
 
+<!-- Help Modal -->
+<div class="onboarding-overlay" id="helpOverlay">
+  <div class="onboarding-card">
+    <div class="onboarding-title">Help & Tips</div>
+    
+    <div class="onboarding-step">
+      <div class="onboarding-icon chat">💬</div>
+      <div>
+        <h4>Chat Mode</h4>
+        <p>Type your question and press Enter or click Send. NeuralAI streams responses in real-time.</p>
+      </div>
+    </div>
+    
+    <div class="onboarding-step">
+      <div class="onboarding-icon files">📁</div>
+      <div>
+        <h4>Files Mode</h4>
+        <p>Upload documents (PDF, TXT, DOCX) and ask questions about them. Files are processed locally.</p>
+      </div>
+    </div>
+    
+    <div class="onboarding-step">
+      <div class="onboarding-icon terminal">⚡</div>
+      <div>
+        <h4>Terminal Mode</h4>
+        <p>Run Python, Bash, or Node.js commands. Type <code>help</code> in the terminal for commands.</p>
+      </div>
+    </div>
+    
+    <div class="onboarding-step">
+      <div class="onboarding-icon">🔑</div>
+      <div>
+        <h4>Neural Uplink</h4>
+        <p>Toggle the Neural Uplink switch in the sidebar to enable enhanced AI capabilities.</p>
+      </div>
+    </div>
+    
+    <button class="onboarding-close" onclick="closeHelp()">Close</button>
+  </div>
+</div>
+
 
 <!-- Top bar -->
-<header class="topbar">
+<div class="topbar">
   <div class="topbar-left">
-    <img src="/static/logo.png" style="height: 28px; margin-right: 8px;">
-    <span class="product-name" style="font-weight: 600; font-size: 18px;">NeuralAI</span>
+    <span class="product-name">
+      <span style="color:#3b82f6">N</span><span style="color:#10b981">e</span><span style="color:#22d3ee">u</span><span style="color:#a855f7">r</span><span style="color:#ef4444">a</span><span style="color:#f97316">l</span><span style="background:linear-gradient(135deg,#22d3ee,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700">AI</span>
+      <span style="color:#ef4444;font-size:10px;animation:livePulse 1.5s ease-in-out infinite;text-shadow:0 0 8px rgba(239,68,68,0.6);">●LIVE</span>
+    </span>
   </div>
   <div class="topbar-right">
-    <button class="top-btn" id="exportBtn">Export</button>
-    <button class="top-btn" id="themeToggleBtn" onclick="toggleDarkMode()">🌙</button>
-
-    <button class="top-btn" id="settingsBtn">Settings</button>
-    <div class="avatar">D</div>
+    <button class="top-btn" onclick="toggleDarkMode()">🌙 Theme</button>
+    <button class="top-btn" onclick="showHelp()">❓ Help</button>
   </div>
-</header>
+</div>
 
 <!-- Main layout -->
 <div class="layout">
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-section">
-      <h3>Modes</h3>
-      <button class="nav-item active" data-tab="chat">💬 Chat</button>
-      <button class="nav-item" data-tab="files">📁 Files</button>
-      <button class="nav-item" data-tab="terminal">💻 Terminal</button>
+      <button class="nav-item active" data-tab="chat" onclick="switchTab('chat')">💬 Chat</button>
+      <button class="nav-item" data-tab="files" onclick="switchTab('files')">📁 Files</button>
+      <button class="nav-item" data-tab="terminal" onclick="switchTab('terminal')">💻 Terminal</button>
+      <button class="nav-item" data-tab="settings" onclick="switchTab('settings')">⚙️ Settings</button>
     </div>
     <div class="sidebar-section">
       <h3>Neural Uplink</h3>
       <div class="uplink-row">
-        <span class="status-dot" id="uplinkDot"></span>
-        <span class="status-label" id="uplinkLabel">Checking...</span>
+        <span class="status-dot online" id="uplinkDot"></span>
+        <span class="status-label" id="uplinkLabel">Online</span>
       </div>
       <label class="switch">
-        <input type="checkbox" id="uplinkToggle" />
+        <input type="checkbox" id="uplinkToggle" checked />
         <span class="slider"></span>
       </label>
     </div>
@@ -1222,6 +1761,11 @@ body {
         <span id="modelType">fine-tuned</span>
       </div>
     </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-links">
+        <a href="/privacy" class="sidebar-link">🔒 Privacy & Data</a>
+      </div>
+    </div>
   </aside>
 
   <!-- Content -->
@@ -1230,9 +1774,15 @@ body {
     <div id="tab-chat">
       <!-- Search bar (Google-style) -->
       <section class="search-wrapper">
-        <div class="search-box">
-          <input type="text" id="queryInput" placeholder="Ask NeuralAI anything..." autocomplete="off" />
+        <div class="search-box" style="position:relative;">
+          <input type="text" id="queryInput" placeholder="Ask NeuralAI anything..." autocomplete="off" onfocus="showHistoryDropdown()" onblur="hideHistoryDropdownDelayed()" />
           <button id="searchBtn">Ask</button>
+          <!-- Chat History Dropdown -->
+          <div id="historyDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface,#fff);border:1px solid var(--border,#dadce0);border-radius:12px;margin-top:4px;max-height:280px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:100;">
+            <div style="padding:8px 12px;font-size:12px;color:#6b7280;border-bottom:1px solid rgba(255,255,255,0.1);">Recent Conversations</div>
+            <div id="historyDropdownList"></div>
+            <div id="historyDropdownEmpty" style="display:none;padding:16px;text-align:center;color:#6b7280;font-size:13px;">No past conversations</div>
+          </div>
         </div>
         <div class="search-tabs">
           <button class="tab active" data-mode="all">All</button>
@@ -1263,18 +1813,29 @@ body {
     <div id="tab-terminal" class="hidden">
       <section class="terminal-section">
         <div class="terminal-header">
-          <div class="terminal-dots">
-            <div class="terminal-dot dot-red"></div>
-            <div class="terminal-dot dot-yellow"></div>
-            <div class="terminal-dot dot-green"></div>
+          <div class="terminal-brand">
+            <div class="terminal-brand-text">
+              <span class="terminal-brand-name">NeuralAI Terminal</span>
+              <span class="terminal-brand-sub">v2.0 • AI-Powered Shell</span>
+            </div>
           </div>
-          <span class="terminal-title" id="terminalTitle">neural@NeuralAI:~</span>
           <div class="terminal-actions">
             <button class="term-btn" onclick="clearTerm()" title="Clear output">🗑️ Clear</button>
             <button class="term-btn" onclick="restartTerm()" title="Restart terminal">🔄 Restart</button>
             <button class="term-btn" onclick="toggleHistory()" title="Command history">📜 History</button>
             <button class="term-btn" onclick="showSnippets()" title="Code snippets">📦 Snippets</button>
           </div>
+        </div>
+        
+        <!-- ASCII Banner -->
+        <div class="terminal-banner" id="terminalBanner">
+          <div class="banner-logo">
+            <span class="banner-bracket">[</span>
+            <span class="banner-n">N</span><span class="banner-e">e</span><span class="banner-u">u</span><span class="banner-r">r</span><span class="banner-a">a</span><span class="banner-l">l</span>
+            <span class="banner-ai">AI</span>
+            <span class="banner-bracket">]</span>
+          </div>
+          <div class="banner-tagline">AI-Powered Development Shell v2.0</div>
         </div>
         
         <!-- Terminal Tabs -->
@@ -1297,7 +1858,7 @@ body {
         </div>
         
         <div class="terminal-input-row">
-          <span class="terminal-prompt" id="terminalPrompt">$</span>
+          <span class="terminal-prompt" id="terminalPrompt">root@Neural:~#</span>
           <input type="text" id="terminal-input" placeholder="Type command or code..." autocomplete="off" spellcheck="false" />
           <button class="terminal-run-btn" onclick="executeTerminalCmd()">▶ Run</button>
         </div>
@@ -1324,7 +1885,47 @@ body {
           <button class="snippet-tab" data-lang="javascript">JavaScript</button>
         </div>
         <div id="snippetsList" class="panel-content"></div>
-      </div>
+      </div>    </div>
+
+    <!-- Settings Tab -->
+    <div id="tab-settings" class="hidden">
+      <section class="settings-section">
+        <div class="settings-header">
+          <h2>⚙️ Settings</h2>
+          <p style="color:#6b7280;font-size:13px;margin-top:4px;">Configure NeuralAI to work best for you</p>
+        </div>
+        
+        <!-- Bio Section -->
+        <div class="settings-card">
+          <h3>👤 Bio</h3>
+          <p style="color:#6b7280;font-size:12px;margin-bottom:12px;">Tell NeuralAI about yourself. This helps personalize responses.</p>
+          <textarea id="userBioInput" placeholder="Tell NeuralAI about yourself (e.g., I'm a software engineer who loves Python...)" style="width:100%;height:100px;background:#161b22;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#e4e4e7;resize:vertical;font-family:inherit;"></textarea>
+          <button onclick="saveUserBio()" style="margin-top:12px;padding:10px 20px;background:#3b82f6;border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:13px;">Save Bio</button>
+        </div>
+        
+        <!-- Memory Section -->
+        <div class="settings-card">
+          <h3>🧠 Memory</h3>
+          <p style="color:#6b7280;font-size:12px;margin-bottom:12px;">Facts NeuralAI will always remember about you.</p>
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input type="text" id="memoryInput" placeholder="Add a fact (e.g., I prefer concise responses)..." style="flex:1;background:#161b22;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#e4e4e7;font-size:13px;">
+            <button onclick="addMemoryFromTab()" style="padding:10px 16px;background:#3b82f6;border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:13px;">Add</button>
+          </div>
+          <div id="memoryList" style="max-height:200px;overflow-y:auto;"></div>
+        </div>
+        
+        <!-- Rules Section -->
+        <div class="settings-card">
+          <h3>📜 Rules</h3>
+          <p style="color:#6b7280;font-size:12px;margin-bottom:12px;">Behavioral rules that guide how NeuralAI responds. Toggle ON/OFF to enable/disable.</p>
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input type="text" id="ruleInput" placeholder="Add a rule (e.g., Always be concise)..." style="flex:1;background:#161b22;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#e4e4e7;font-size:13px;">
+            <button onclick="addRuleFromTab()" style="padding:10px 16px;background:#10b981;border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:13px;">Add</button>
+          </div>
+          <div id="rulesList" style="max-height:200px;overflow-y:auto;"></div>
+        </div>
+      </section>
+    </div>
     </div>
   </main>
 </div>
@@ -1332,7 +1933,7 @@ body {
 <!-- Bottom input bar -->
 <section class="chat-input-bar">
   <textarea id="chatInput" rows="1" placeholder="Type a message for NeuralAI..."></textarea>
-  <button id="sendBtn">Send</button>
+  <button id="sendBtn" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 14px rgba(239,68,68,0.3);">Send</button>
 </section>
 
 <!-- TERMINAL PANEL -->
@@ -1365,7 +1966,32 @@ const uplinkToggle = document.getElementById('uplinkToggle');
 const queryInput = document.getElementById('queryInput');
 const searchBtn = document.getElementById('searchBtn');
 
-function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escHtml(text) { return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Strip ANSI escape codes and terminal control sequences from terminal output
+function stripAnsi(text) {
+  return text
+    // Remove full ANSI escape sequences
+    .replace(/\x1b\[[0-9;]*[a-zA-Z]/g, '')
+    .replace(/\x1b\][^\x07]*\x07/g, '')
+    .replace(/\x1b[PX^_].*?\x1b\\/g, '')
+    // Remove bracketed paste mode and private mode sequences (the ugly [?2004h stuff)
+    .replace(/\[\?[0-9;]*[hl]/g, '')
+    .replace(/\[\?[0-9;]*[a-zA-Z]/g, '')
+    // Remove any remaining bracket sequences that look like escape codes
+    .replace(/\[[\?0-9;]*[a-zA-Z]/g, '')
+    // Remove OSC sequences
+    .replace(/\].*?\x07/g, '')
+    // Clean up any leftover escape characters
+    .replace(/\x1b/g, '')
+    // Remove raw bracket sequences like [?2004h
+    .replace(/\[\?\d+h/g, '')
+    .replace(/\[\?\d+l/g, '');
+}
+
+function esc(text) {
+  return escHtml(stripAnsi(text));
+}
 
 function fmt(t) {
   let o = esc(t);
@@ -1386,15 +2012,20 @@ function toast(msg, type = '') {
   setTimeout(() => t.remove(), 3000);
 }
 
-// Tab switching
-document.querySelectorAll('.nav-item').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('[id^="tab-"]').forEach(c => c.classList.add('hidden'));
-    document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
-    if (btn.dataset.tab === 'terminal' && !termSid) initTerm();
-    if (btn.dataset.tab === 'files') loadFiles();
+// Tab switching - wrapped in DOMContentLoaded to ensure DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      console.log('Tab clicked:', btn.dataset.tab);
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('[id^="tab-"]').forEach(c => c.classList.add('hidden'));
+      const tabEl = document.getElementById('tab-' + btn.dataset.tab);
+      console.log('Showing tab:', 'tab-' + btn.dataset.tab, tabEl);
+      tabEl.classList.remove('hidden');
+      if (btn.dataset.tab === 'terminal' && !termSid) initTerm();
+      if (btn.dataset.tab === 'files') loadFiles();
+    });
   });
 });
 
@@ -1409,29 +2040,21 @@ document.querySelectorAll('.search-tabs .tab').forEach(tab => {
   });
 });
 
-// Settings
-document.getElementById('settingsBtn').addEventListener('click', async () => {
-  try {
-    const r = await fetch('/api/status');
-    const d = await r.json();
-    const uplinkStatus = d.uplink === 'connected' ? '✅ Connected' : '❌ Offline';
-    toast(`NeuralAI v${d.version || '3.0'} | ${d.model_type || 'fine-tuned'} | ${d.device || 'CPU'} | Files: ${d.indexed_files || 0} | Uplink: ${uplinkStatus}`, 'success');
-  } catch {
-    toast('Could not load settings', 'error');
-  }
-});
 
 // Export
-document.getElementById('exportBtn').addEventListener('click', () => {
-  if (!conversation.length) { toast('No conversation to export', 'error'); return; }
-  const md = conversation.filter(m => m.role !== 'system').map(m => `**${m.role}:** ${m.content}`).join('\n\n');
-  const b = new Blob([`# NeuralAI Chat\n\n${md}`], { type: 'text/markdown' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(b);
-  a.download = 'neuralai-chat.md';
-  a.click();
-  toast('Exported!', 'success');
-});
+const exportBtn = document.getElementById('exportBtn');
+if (exportBtn) {
+  exportBtn.addEventListener('click', () => {
+    if (!conversation.length) { toast('No conversation to export', 'error'); return; }
+    const md = conversation.filter(m => m.role !== 'system').map(m => `**${m.role}:** ${m.content}`).join('\n\n');
+    const b = new Blob([`# NeuralAI Chat\n\n${md}`], { type: 'text/markdown' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = 'neuralai-chat.md';
+    a.click();
+    toast('Exported!', 'success');
+  });
+}
 
 // Uplink toggle
 uplinkToggle.addEventListener('change', async () => {
@@ -1474,6 +2097,9 @@ chatInput.addEventListener('keydown', e => {
 });
 
 sendBtn.addEventListener('click', () => { if (!sendBtn.disabled) sendMsg(); });
+
+// Initialize sendBtn state on page load
+sendBtn.disabled = true;
 
 queryInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
@@ -1554,12 +2180,17 @@ async function sendMsg() {
     hideTypingIndicator();
     bubbleEl.innerHTML = '<span style=\"color:#ea4335\">Connection lost — retrying...</span>';
     setTimeout(() => sendMsg(), 3000);
-  } } finally {
+  } finally {
     hideTypingIndicator();
     isStreaming = false;
     sendBtn.disabled = false;
     sendBtn.textContent = 'Send';
   }
+}
+
+function getTimestamp() {
+  const now = new Date();
+  return now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
 function addMsg(role, txt) {
@@ -1701,8 +2332,12 @@ function startTerminalPolling() {
 
 function termOut(txt, cls = '') {
   const el = document.getElementById('terminal-output');
-  el.innerHTML += `<div class="${cls}">${esc(txt)}</div>`;
-  el.scrollTop = el.scrollHeight;
+  // Strip ANSI codes and clean up the output
+  const cleanText = stripAnsi(txt).replace(/\[.*?h/g, '').trim();
+  if (cleanText) {
+    el.innerHTML += `<div class="term-line ${cls}">${escHtml(cleanText)}</div>`;
+    el.scrollTop = el.scrollHeight;
+  }
 }
 
 const clearTerm = () => document.getElementById('terminal-output').innerHTML = '';
@@ -1801,6 +2436,50 @@ function closeOnboarding() {
   localStorage.setItem('neuralai_onboarded', 'true');
 }
 
+// Help Modal
+function showHelp() {
+  document.getElementById('helpOverlay')?.classList.add('visible');
+}
+
+function closeHelp() {
+  document.getElementById('helpOverlay')?.classList.remove('visible');
+}
+
+// Make UX functions global for onclick handlers
+window.showOnboarding = showOnboarding;
+window.closeOnboarding = closeOnboarding;
+window.showHelp = showHelp;
+window.closeHelp = closeHelp;
+
+// Tab Switching
+function switchTab(tabName) {
+  // Update nav items
+  document.querySelectorAll('.nav-item[data-tab]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabName);
+  });
+  
+  // Update content tabs
+  document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+    tab.classList.add('hidden');
+  });
+  const activeTab = document.getElementById('tab-' + tabName);
+  if (activeTab) {
+    activeTab.classList.remove('hidden');
+  }
+  
+  // Load settings when settings tab is shown
+  if (tabName === 'settings') {
+    setTimeout(() => {
+      loadBio();
+      loadMemoryList();
+      loadRulesList();
+    }, 100);
+  }
+}
+
+// Make switchTab global for onclick handlers
+window.switchTab = switchTab;
+
 // Dark Mode
 let isDarkMode = false;
 
@@ -1810,6 +2489,7 @@ function toggleDarkMode() {
   localStorage.setItem('neuralai_dark_mode', isDarkMode);
   showToast(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success');
 }
+window.toggleDarkMode = toggleDarkMode;
 
 function loadDarkMode() {
   const saved = localStorage.getItem('neuralai_dark_mode');
@@ -1906,8 +2586,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(saveConversation, 10000);
 });
 
-
-// Check uplink status on load
+// Settings Panel
 async function checkUplink() {
   try {
     const r = await fetch('/api/status');
@@ -1919,6 +2598,124 @@ async function checkUplink() {
   } catch {
     updateUplinkUI(false);
   }
+}
+
+// User Bio
+function saveUserBio() {
+  const bio = document.getElementById('userBioInput').value.trim();
+  localStorage.setItem('neuralai_user_bio', bio);
+  showToast('Bio saved successfully!', 'success');
+}
+window.saveUserBio = saveUserBio;
+
+function loadBio() {
+  const bio = localStorage.getItem('neuralai_user_bio') || '';
+  const input = document.getElementById('userBioInput');
+  if (input) input.value = bio;
+}
+
+// Memory
+function addMemoryFromTab() {
+  const input = document.getElementById('memoryInput');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  const memories = JSON.parse(localStorage.getItem('neuralai_memories') || '[]');
+  memories.push({ id: Date.now(), text });
+  localStorage.setItem('neuralai_memories', JSON.stringify(memories));
+  
+  input.value = '';
+  loadMemoryList();
+  showToast('Memory added!', 'success');
+}
+window.addMemoryFromTab = addMemoryFromTab;
+
+function deleteMemory(id) {
+  const memories = JSON.parse(localStorage.getItem('neuralai_memories') || '[]');
+  const filtered = memories.filter(m => m.id !== id);
+  localStorage.setItem('neuralai_memories', JSON.stringify(filtered));
+  loadMemoryList();
+}
+
+function loadMemoryList() {
+  const container = document.getElementById('memoryList');
+  if (!container) return;
+  
+  const memories = JSON.parse(localStorage.getItem('neuralai_memories') || '[]');
+  
+  if (memories.length === 0) {
+    container.innerHTML = '<p style="color:#6b7280;font-size:12px;text-align:center;padding:20px;">No memories yet. Add something NeuralAI should remember about you.</p>';
+    return;
+  }
+  
+  container.innerHTML = memories.map(m => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#161b22;border-radius:6px;margin-bottom:6px;">
+      <span style="font-size:13px;color:#e4e4e7;">${escapeHtml(m.text)}</span>
+      <button onclick="deleteMemory(${m.id})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:16px;">×</button>
+    </div>
+  `).join('');
+}
+
+// Rules
+function addRuleFromTab() {
+  const input = document.getElementById('ruleInput');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  const rules = JSON.parse(localStorage.getItem('neuralai_rules') || '[]');
+  rules.push({ id: Date.now(), text, enabled: true });
+  localStorage.setItem('neuralai_rules', JSON.stringify(rules));
+  
+  input.value = '';
+  loadRulesList();
+  showToast('Rule added!', 'success');
+}
+window.addRuleFromTab = addRuleFromTab;
+
+function toggleRule(id) {
+  const rules = JSON.parse(localStorage.getItem('neuralai_rules') || '[]');
+  const rule = rules.find(r => r.id === id);
+  if (rule) {
+    rule.enabled = !rule.enabled;
+    localStorage.setItem('neuralai_rules', JSON.stringify(rules));
+    loadRulesList();
+  }
+}
+
+function deleteRule(id) {
+  const rules = JSON.parse(localStorage.getItem('neuralai_rules') || '[]');
+  const filtered = rules.filter(r => r.id !== id);
+  localStorage.setItem('neuralai_rules', JSON.stringify(filtered));
+  loadRulesList();
+}
+
+function loadRulesList() {
+  const container = document.getElementById('rulesList');
+  if (!container) return;
+  
+  const rules = JSON.parse(localStorage.getItem('neuralai_rules') || '[]');
+  
+  if (rules.length === 0) {
+    container.innerHTML = '<p style="color:#6b7280;font-size:12px;text-align:center;padding:20px;">No rules yet. Add behavioral rules to guide NeuralAI.</p>';
+    return;
+  }
+  
+  container.innerHTML = rules.map(r => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#161b22;border-radius:6px;margin-bottom:6px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button onclick="toggleRule(${r.id})" style="background:${r.enabled ? '#10b981' : '#374151'};border:none;border-radius:4px;padding:4px 10px;color:#fff;cursor:pointer;font-size:11px;">${r.enabled ? 'ON' : 'OFF'}</button>
+        <span style="font-size:13px;color:${r.enabled ? '#e4e4e7' : '#6b7280'};">${escapeHtml(r.text)}</span>
+      </div>
+      <button onclick="deleteRule(${r.id})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:16px;">×</button>
+    </div>
+  `).join('');
+}
+
+// Helper
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 checkUplink();
@@ -2139,8 +2936,8 @@ document.querySelectorAll('.terminal-tab').forEach(tab => {
     const promptEl = document.getElementById('terminalPrompt');
     if (promptEl) {
       if (currentShell === 'bash') {
-        promptEl.textContent = '$';
-        promptEl.style.color = '#58a6ff';
+        promptEl.textContent = 'root@Neural:~#';
+        promptEl.style.color = '#3fb950';
       } else if (currentShell === 'python') {
         promptEl.textContent = '>>>';
         promptEl.style.color = '#3572A5';
@@ -2148,12 +2945,6 @@ document.querySelectorAll('.terminal-tab').forEach(tab => {
         promptEl.textContent = '>';
         promptEl.style.color = '#f1e05a';
       }
-    }
-    
-    // Update terminal title
-    const titleEl = document.getElementById('terminalTitle');
-    if (titleEl) {
-      titleEl.textContent = `neural@NeuralAI:~ (${currentShell})`;
     }
     
     // Show shell info
@@ -2169,6 +2960,178 @@ document.querySelectorAll('.terminal-tab').forEach(tab => {
   </svg>
 </button>
 
-<a href="/privacy" class="privacy-link">Privacy & Data</a>
+
+<script>
+// Settings Tab Functions - added inline to avoid conflicts
+var userSettings = {};
+
+async function saveUserBio() {
+  const bio = document.getElementById('userBioInput').value.trim();
+  try {
+    await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_bio: bio })
+    });
+    toast('Bio saved!', 'success');
+  } catch (e) {
+    toast('Failed to save bio', 'error');
+  }
+}
+
+async function loadBio() {
+  try {
+    const res = await fetch('/api/settings');
+    const data = await res.json();
+    const bioInput = document.getElementById('userBioInput');
+    if (bioInput && data.settings && data.settings.user_bio) {
+      bioInput.value = data.settings.user_bio;
+    }
+  } catch (e) {
+    console.error('Failed to load bio:', e);
+  }
+}
+
+async function addMemoryFromTab() {
+  const input = document.getElementById('memoryInput');
+  const fact = input ? input.value.trim() : '';
+  if (!fact) return;
+  
+  try {
+    await fetch('/api/memory', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fact })
+    });
+    if (input) input.value = '';
+    loadMemoryList();
+    toast('Memory added!', 'success');
+  } catch (e) {
+    toast('Failed to add memory', 'error');
+  }
+}
+
+async function loadMemoryList() {
+  try {
+    const res = await fetch('/api/memory');
+    const data = await res.json();
+    const list = document.getElementById('memoryList');
+    if (!list) return;
+    
+    list.innerHTML = '';
+    (data.facts || []).forEach(function(m) {
+      const div = document.createElement('div');
+      div.className = 'memory-item';
+      div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;background:#1a1a2e;border-radius:8px;padding:10px 12px;margin-bottom:8px;';
+      div.innerHTML = '<span style="flex:1;font-size:13px;color:#e4e4e7;">' + escHtml(m.fact) + '</span><button class="delete-btn" onclick="deleteMemoryItem(' + m.id + ')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:16px;">×</button>';
+      list.appendChild(div);
+    });
+    
+    if ((data.facts || []).length === 0) {
+      list.innerHTML = '<div style="color:#6b7280;font-size:13px;padding:8px;">No memories saved yet</div>';
+    }
+  } catch (e) {
+    console.error('Failed to load memory:', e);
+  }
+}
+
+async function deleteMemoryItem(id) {
+  try {
+    await fetch('/api/memory/' + id, { method: 'DELETE' });
+    loadMemoryList();
+    toast('Memory deleted', 'success');
+  } catch (e) {
+    toast('Failed to delete memory', 'error');
+  }
+}
+
+async function addRuleFromTab() {
+  const input = document.getElementById('ruleInput');
+  const rule = input ? input.value.trim() : '';
+  if (!rule) return;
+  
+  try {
+    await fetch('/api/rules', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rule: rule, is_active: 1 })
+    });
+    if (input) input.value = '';
+    loadRulesList();
+    toast('Rule added!', 'success');
+  } catch (e) {
+    toast('Failed to add rule', 'error');
+  }
+}
+
+async function loadRulesList() {
+  try {
+    const res = await fetch('/api/rules');
+    const data = await res.json();
+    const list = document.getElementById('rulesList');
+    if (!list) return;
+    
+    list.innerHTML = '';
+    (data.rules || []).forEach(function(r) {
+      const div = document.createElement('div');
+      div.className = 'rule-item';
+      div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;background:#1a1a2e;border-radius:8px;padding:10px 12px;margin-bottom:8px;';
+      div.innerHTML = '<span style="flex:1;font-size:13px;color:#e4e4e7;">' + escHtml(r.rule) + '</span><button class="rule-toggle ' + (r.is_active ? 'on' : 'off') + '" onclick="toggleRuleItem(' + r.id + ', ' + r.is_active + ')" style="background:' + (r.is_active ? '#10b981' : '#374151') + ';border:none;color:#fff;cursor:pointer;font-size:11px;padding:4px 10px;border-radius:6px;margin-right:8px;">' + (r.is_active ? 'ON' : 'OFF') + '</button><button class="delete-btn" onclick="deleteRuleItem(' + r.id + ')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:16px;">×</button>';
+      list.appendChild(div);
+    });
+    
+    if ((data.rules || []).length === 0) {
+      list.innerHTML = '<div style="color:#6b7280;font-size:13px;padding:8px;">No rules defined yet</div>';
+    }
+  } catch (e) {
+    console.error('Failed to load rules:', e);
+  }
+}
+
+async function toggleRuleItem(id, currentState) {
+  try {
+    await fetch('/api/rules/' + id + '/toggle', { method: 'POST' });
+    loadRulesList();
+  } catch (e) {
+    toast('Failed to toggle rule', 'error');
+  }
+}
+
+async function deleteRuleItem(id) {
+  try {
+    await fetch('/api/rules/' + id, { method: 'DELETE' });
+    loadRulesList();
+    toast('Rule deleted', 'success');
+  } catch (e) {
+    toast('Failed to delete rule', 'error');
+  }
+}
+
+// Make functions global for onclick handlers
+window.saveUserBio = saveUserBio;
+window.loadBio = loadBio;
+window.addMemoryFromTab = addMemoryFromTab;
+window.loadMemoryList = loadMemoryList;
+window.deleteMemoryItem = deleteMemoryItem;
+window.addRuleFromTab = addRuleFromTab;
+window.loadRulesList = loadRulesList;
+window.toggleRuleItem = toggleRuleItem;
+window.deleteRuleItem = deleteRuleItem;
+
+// Load settings when the settings tab is clicked
+var settingsLoadedOnce = false;
+document.querySelectorAll('.nav-item').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    if (btn.dataset && btn.dataset.tab === 'settings' && !settingsLoadedOnce) {
+      settingsLoadedOnce = true;
+      setTimeout(function() {
+        loadBio();
+        loadMemoryList();
+        loadRulesList();
+      }, 100);
+    }
+  });
+});
+</script>
 </body>
 </html>
