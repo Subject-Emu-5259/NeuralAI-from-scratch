@@ -8,6 +8,19 @@ Fine-tuned from SmolLM2-360M-Instruct with QLoRA — 360M parameters, optimized 
 
 ---
 
+## 🚀 Roadmap v5.0
+
+**Coming Soon:** NeuralAI v5.0 with major expansions:
+- **Training Data:** 347 → 1000+ samples
+- **DPO Alignment:** Better response quality through preference optimization
+- **GPU Inference:** 10x faster responses with CUDA acceleration
+- **Automated Evaluation:** Benchmark suite for continuous quality assessment
+- **Expanded Tools:** Code sandbox, file manager, web fetcher, database connector, git assistant
+
+📖 See [ROADMAP.md](ROADMAP.md) for full details.
+
+---
+
 ## ✨ Features & Capabilities
 
 ### 🤖 AI Chat

@@ -116,35 +116,22 @@ local_model = LocalModel()
 def neuralai_route(msg: str) -> Tuple[str, str | None]:
     """
     Route message to appropriate handler.
+    Uses the clean router from neuralai_router.py if available.
     Returns (route_type, tool_name)
     - route_type: "local" | "uplink" | "tool"
-    - tool_name: "terminal" | None
+    - tool_name: "terminal" | "code_exec" | "file_manager" | "web_fetcher" | "database" | "git" | None
     """
-    uplink_triggers = [
-        "research", "analyze", "debug", "explain deeply",
-        "worldbuild", "simulate", "generate dataset",
-        "compare", "break down", "step by step",
-        "plan", "design", "architecture", "system",
-        "help me build", "help me create"
-    ]
-    
-    tool_triggers = {
-        "terminal": ["run ", "execute ", "shell ", "command "],
-    }
-    
-    lower = msg.lower()
-    
-    # Check for tool triggers first
-    for tool, keys in tool_triggers.items():
-        if any(k in lower for k in keys):
-            return ("tool", tool)
-    
-    # Check for uplink triggers
-    if any(k in lower for k in uplink_triggers) or len(msg) > 200:
-        return ("uplink", None)
-    
-    # Default to local
-    return ("local", None)
+    try:
+        from neuralai_router import neuralai_route as _route
+        return _route(msg)
+    except ImportError:
+        # Fallback routing
+        lower = msg.lower()
+        if any(k in lower for k in ["research", "analyze", "debug", "explain deeply"]):
+            return ("uplink", None)
+        if len(msg) > 200:
+            return ("uplink", None)
+        return ("local", None)
 
 
 async def neuralai_local(prompt: str) -> AsyncGenerator[str, None]:

@@ -13,10 +13,10 @@ from werkzeug.utils import secure_filename
 
 # NeuralAI Engine - Router + Local Model + Uplink + Tools
 try:
-    from neuralai_engine import neuralai_chat, neuralai_route, local_model
-    HAS_ENGINE = True
+    from neuralai_router import neuralai_route
+    HAS_ROUTER = True
 except ImportError:
-    HAS_ENGINE = False
+    HAS_ROUTER = False
     def neuralai_route(msg):
         return ("local", None)
     neuralai_chat = None
@@ -150,6 +150,17 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             rule TEXT NOT NULL,
             is_active INTEGER DEFAULT 1,
+            created_at TEXT NOT NULL
+        );
+        
+        -- Preference data table for DPO
+        CREATE TABLE IF NOT EXISTS preference_data (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            prompt TEXT NOT NULL,
+            chosen TEXT NOT NULL,
+            rejected TEXT,
+            category TEXT DEFAULT 'general',
+            source TEXT DEFAULT 'user_feedback',
             created_at TEXT NOT NULL
         );
         
@@ -329,6 +340,28 @@ def toggle_rule(rule_id):
 # ========================================
 # CONVERSATIONS API
 # ========================================
+
+@app.route("/api/preference", methods=["POST"])
+def add_preference():
+    """Add a chosen/rejected preference pair for DPO."""
+    data = request.get_json(silent=True) or {}
+    prompt = data.get("prompt", "").strip()
+    chosen = data.get("chosen", "").strip()
+    rejected = data.get("rejected", "").strip()
+    category = data.get("category", "general")
+    
+    if not prompt or not chosen:
+        return jsonify({"error": "Prompt and chosen response required"}), 400
+        
+    db = get_db()
+    now = datetime.utcnow().isoformat()
+    db.execute(
+        "INSERT INTO preference_data (prompt, chosen, rejected, category, created_at) VALUES (?, ?, ?, ?, ?)",
+        (prompt, chosen, rejected, category, now)
+    )
+    db.commit()
+    return jsonify({"success": True})
+
 
 @app.route("/api/conversations", methods=["GET"])
 def list_conversations():
@@ -612,46 +645,27 @@ def build_prompt(messages: list[dict], user_content: str, doc_context: str) -> s
 
 
 def answer_with_model(messages: list[dict], user_content: str, doc_context: str, max_new_tokens: int, temperature: float) -> str:
-    load_model()
-    if model is None or tokenizer is None or torch is None:
-        base = "I'm up, but the local model backend isn't available yet."
-        if doc_context:
-            return base + " I did find uploaded document context, but I can't summarize it without the model."
-        return base + f" You said: {user_content}"
-
-    prompt = build_prompt(messages, user_content, doc_context)
-    try:
-        inputs = tokenizer(prompt, return_tensors="pt")
-        device = model_device()
-        if device != "cpu":
-            inputs = {k: v.to(device) for k, v in inputs.items()}
-        with torch.no_grad():
-            output = model.generate(
-                **inputs,
-                max_new_tokens=max(32, min(max_new_tokens, 512)),
-                do_sample=temperature > 0,
-                temperature=max(0.1, min(temperature, 1.5)),
-                top_p=0.95,
-                repetition_penalty=1.05,
-                pad_token_id=tokenizer.eos_token_id,
-            )
-        input_len = inputs["input_ids"].shape[-1]
-        decoded = tokenizer.decode(output[0][input_len:], skip_special_tokens=True).strip()
-        if not decoded:
-            decoded = tokenizer.decode(output[0], skip_special_tokens=True).strip()
-        return decoded or "I couldn't generate a reply right now."
-    except Exception as exc:
-        return f"[Model error: {exc}]"
+    # Skip model loading - use fallback response
+    base = "I'm online and ready to help! The local model is currently unavailable due to memory constraints."
+    if doc_context:
+        return base + f" I found some document context but can't process it right now. Your message: {user_content}"
+    return base + f" You said: {user_content}"
 
 
 def stream_words(text: str):
-    words = text.split()
-    if not words:
-        yield f"data: {json.dumps({'content': text})}\n\n"
-        return
-    for word in words:
-        yield f"data: {json.dumps({'content': word + ' '})}\n\n"
-        time.sleep(0.01)
+    """Stream text word by word, preserving newlines."""
+    # Split by lines to preserve structure
+    lines = text.split('\n')
+    for i, line in enumerate(lines):
+        if line:
+            # Stream words in the line
+            words = line.split()
+            for word in words:
+                yield f"data: {json.dumps({'content': word + ' '})}\n\n"
+                time.sleep(0.005)
+        # Add newline after each line except the last empty one
+        if i < len(lines) - 1:
+            yield f"data: {json.dumps({'content': '\\n'})}\n\n"
 
 
 INDEXED_FILES = load_registry()

@@ -18,16 +18,16 @@ NeuralAI is a production-ready AI assistant with a full-stack web UI, RAG docume
 
 ## Repository Topics
 
-```
+```markdown
 neuralai llm fine-tuning qlora smollm2 pytorch transformers rag chromadb terminal agentic-ai custom-ai language-model chat-assistant local-ai
 ```
 
 ## Sample Tweet
 
-> Built my own AI assistant from scratch 🤖
-> Features: RAG docs, integrated terminal, Neural Uplink agents.
+> Built my own AI assistant from scratch 🤖\
+> Features: RAG docs, integrated terminal, Neural Uplink agents.\
 > Fine-tuned SmolLM2-360M with QLoRA — all running locally on CPU.
-> 
+>
 > #AI #LLM #FineTuning #NeuralAI #Python #RAG
 
 ## Sample LinkedIn Post
@@ -35,6 +35,7 @@ neuralai llm fine-tuning qlora smollm2 pytorch transformers rag chromadb termina
 > **I just built my own production AI assistant.**
 >
 > NeuralAI v2.4 is live with:
+>
 > - Local LLM: SmolLM2-360M-Instruct, fine-tuned with QLoRA
 > - RAG: PDF/DOCX/TXT/MD semantic search with ChromaDB
 > - Integrated Terminal: Persistent PTY shell with custom AI commands

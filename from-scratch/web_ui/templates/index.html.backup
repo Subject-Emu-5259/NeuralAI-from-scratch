@@ -518,494 +518,46 @@ body.dark-mode .history-item.active {
 
 .msg {
   max-width: 85%;
-  padding: 0;
-  border-radius: 20px;
-  font-size: 15px;
-  line-height: 1.7;
-  animation: messageSlide 0.3s ease;
-}
-
-@keyframes messageSlide {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .msg.user {
   align-self: flex-end;
-  background: transparent;
+  background: #e8f0fe;
+  color: #185abc;
 }
 
 .msg.ai {
   align-self: flex-start;
-  background: transparent;
+  background: #fff;
+  border: 1px solid #dadce0;
 }
-
-/* Message Bubble */
-.msg-bubble {
-  padding: 16px 20px;
-  border-radius: 20px;
-  position: relative;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-}
-
-.msg.user .msg-bubble {
-  background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 50%, #3b82f6 100%);
-  color: #f0f9ff;
-  border-radius: 20px 20px 4px 20px;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-}
-
-.msg.ai .msg-bubble {
-  background: #161b22;
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #e4e4e7;
-  border-radius: 20px 20px 20px 4px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
-
-body:not(.dark-mode) .msg.ai .msg-bubble {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  color: #1f2937;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
-
-/* Message Meta */
-.msg-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-  font-size: 11px;
-  opacity: 0.7;
-}
-
-.msg-actions {
-  display: flex;
-  gap: 4px;
-  margin-top: 8px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.msg:hover .msg-actions {
-  opacity: 1;
-}
-
-.action-btn {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #8b949e;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.action-btn:hover {
-  background: rgba(255,255,255,0.1);
-  color: #e4e4e7;
-}
-
-.action-btn.active {
-  background: rgba(59,130,246,0.2);
-  border-color: #3b82f6;
-  color: #3b82f6;
-}
-
-.action-btn.down.active {
-  background: rgba(239,68,68,0.2);
-  border-color: #ef4444;
-  color: #ef4444;
-}
-
-.msg-timestamp {
-  color: inherit;
-}
-
-/* ===== CODE BLOCK STYLING ===== */
 
 .msg pre {
-  background: #0d1117 !important;
-  border: 1px solid #30363d;
-  border-radius: 12px;
-  padding: 0;
-  margin: 12px 0;
-  overflow: hidden;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
-  font-size: 13px;
-  line-height: 1.6;
+  background: #202124;
+  color: #e8eaed;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 10px 0;
+  overflow-x: auto;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+}
+
+.msg code {
+  background: #f1f3f4;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
 }
 
 .msg pre code {
-  background: transparent !important;
-  padding: 0 !important;
-  display: block;
-  overflow-x: auto;
-  padding: 16px !important;
-  color: #e6edf3;
-}
-
-/* Code Block Header */
-.code-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 16px;
-  background: #161b22;
-  border-bottom: 1px solid #30363d;
-  font-size: 12px;
-}
-
-.code-lang {
-  color: #8b949e;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.code-copy-btn {
   background: transparent;
-  border: 1px solid #30363d;
-  color: #8b949e;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.code-copy-btn:hover {
-  background: #30363d;
-  color: #e6edf3;
-}
-
-/* Inline Code */
-.msg code {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-body:not(.dark-mode) .msg code {
-  background: rgba(139, 92, 246, 0.1);
-  color: #7c3aed;
-}
-
-/* ===== SYNTAX HIGHLIGHTING ===== */
-
-.msg pre .keyword { color: #ff7b72; }
-.msg pre .string { color: #a5d6ff; }
-.msg pre .number { color: #79c0ff; }
-.msg pre .comment { color: #8b949e; font-style: italic; }
-.msg pre .function { color: #d2a8ff; }
-.msg pre .operator { color: #ff7b72; }
-.msg pre .class { color: #ffa657; }
-.msg pre .variable { color: #ffa657; }
-.msg pre .builtin { color: #79c0ff; }
-
-/* ===== TOOL CALL CARDS ===== */
-
-.tool-card {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  border-radius: 12px;
-  padding: 14px 18px;
-  margin: 12px 0;
-  font-size: 13px;
-  animation: toolCardPulse 0.5s ease;
-}
-
-@keyframes toolCardPulse {
-  0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
-}
-
-.tool-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.tool-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.tool-icon.code { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-.tool-icon.search { background: linear-gradient(135deg, #10b981, #059669); }
-.tool-icon.file { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.tool-icon.ai { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-
-.tool-name {
-  color: #e4e4e7;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.tool-status {
-  margin-left: auto;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.tool-status.running {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
-  animation: statusPulse 1s infinite;
-}
-
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.tool-status.complete {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
-}
-
-.tool-output {
-  background: #0d1117;
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: #e6edf3;
-  overflow-x: auto;
-  border: 1px solid #30363d;
-}
-
-/* ===== TYPING ANIMATION ===== */
-
-.typing-cursor {
-  display: inline-block;
-  width: 2px;
-  height: 1.2em;
-  background: #a78bfa;
-  margin-left: 2px;
-  animation: cursorBlink 0.8s infinite;
-  vertical-align: text-bottom;
-}
-
-@keyframes cursorBlink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
-/* Streaming text effect */
-.streaming-text {
-  animation: textFade 0.1s ease;
-}
-
-@keyframes textFade {
-  from { opacity: 0.7; }
-  to { opacity: 1; }
-}
-
-/* ===== LIST STYLING ===== */
-
-.msg ul, .msg ol {
-  margin: 10px 0;
-  padding-left: 24px;
-}
-
-.msg li {
-  margin: 6px 0;
-  position: relative;
-}
-
-.msg ul li::marker {
-  color: #a78bfa;
-}
-
-.msg ol li::marker {
-  color: #a78bfa;
-  font-weight: 600;
-}
-
-/* ===== BLOCKQUOTE STYLING ===== */
-
-.msg blockquote {
-  border-left: 3px solid #a78bfa;
-  padding-left: 16px;
-  margin: 12px 0;
-  color: #9ca3af;
-  font-style: italic;
-  background: rgba(139, 92, 246, 0.05);
-  padding: 12px 16px;
-  border-radius: 0 8px 8px 0;
-}
-
-/* ===== THINKING ANIMATION ===== */
-
-.thinking-dots {
-  display: inline-flex;
-  gap: 4px;
-  padding: 8px 0;
-}
-
-.thinking-dots span {
-  width: 8px;
-  height: 8px;
-  background: #a78bfa;
-  border-radius: 50%;
-  animation: thinkingDot 1.4s infinite ease-in-out both;
-}
-
-.thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
-.thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
-.thinking-dots span:nth-child(3) { animation-delay: 0; }
-
-@keyframes thinkingDot {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
-  40% { transform: scale(1); opacity: 1; }
-}
-
-/* ===== EXECUTION OUTPUT STYLING ===== */
-
-.exec-output {
-  background: #0d1117;
-  border: 1px solid #30363d;
-  border-radius: 10px;
-  padding: 14px 18px;
-  margin: 12px 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  position: relative;
-}
-
-.exec-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #30363d;
-}
-
-.exec-label {
-  color: #8b949e;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.exec-time {
-  margin-left: auto;
-  color: #10b981;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.exec-content {
-  color: #e6edf3;
-  white-space: pre-wrap;
-}
-
-/* ===== MARKDOWN ENHANCEMENTS ===== */
-
-.msg h1, .msg h2, .msg h3 {
-  margin: 16px 0 10px 0;
-  font-weight: 600;
-  color: inherit;
-}
-
-.msg h1 { font-size: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
-.msg h2 { font-size: 18px; }
-.msg h3 { font-size: 16px; }
-
-.msg table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 12px 0;
-}
-
-.msg th, .msg td {
-  border: 1px solid rgba(255,255,255,0.1);
-  padding: 10px 14px;
-  text-align: left;
-}
-
-.msg th {
-  background: rgba(139, 92, 246, 0.1);
-  font-weight: 600;
-}
-
-.msg tr:nth-child(even) {
-  background: rgba(255,255,255,0.02);
-}
-
-/* ===== LINK STYLING ===== */
-
-.msg a {
-  color: #60a5fa;
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.2s;
-}
-
-.msg a:hover {
-  border-bottom-color: #60a5fa;
-}
-
-/* ===== HORIZONTAL RULE ===== */
-
-.msg hr {
-  border: none;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
-  margin: 20px 0;
-}
-
-/* ===== COPY BUTTON ===== */
-
-.copy-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(255,255,255,0.1);
-  border: none;
-  color: #8b949e;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  cursor: pointer;
-  opacity: 0;
-  transition: all 0.2s;
-}
-
-.msg-bubble:hover .copy-btn {
-  opacity: 1;
-}
-
-.copy-btn:hover {
-  background: rgba(255,255,255,0.2);
-  color: #e6edf3;
-}
-
-.copy-btn.copied {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
+  padding: 0;
 }
 
 /* Bottom input bar - COMPACT */
@@ -2603,146 +2155,15 @@ function esc(text) {
   return escHtml(stripAnsi(text));
 }
 
-// ===== ENHANCED FORMATTING =====
-
-// Syntax highlighting for code
-function highlightCode(code, lang) {
-  let highlighted = esc(code);
-  
-  // Language-specific patterns
-  const patterns = {
-    keyword: /\b(if|else|for|while|def|class|import|from|return|try|except|finally|with|as|in|not|and|or|True|False|None|lambda|yield|async|await|function|const|let|var|new|this|typeof|instanceof|throw|catch|switch|case|break|continue|default)\b/g,
-    string: /(["'`])(?:(?!\1)[^\\]|\\.)*\1/g,
-    number: /\b(\d+\.?\d*)\b/g,
-    comment: /(#[^\n]*|\/\/[^\n]*|\/\*[\s\S]*?\*\/)/g,
-    function: /\b([a-zA-Z_]\w*)\s*(?=\()/g,
-    builtin: /\b(print|len|range|str|int|float|list|dict|set|tuple|open|input|console|log|Math|Array|Object|String|Number|Boolean)\b/g,
-  };
-  
-  // Apply highlighting
-  highlighted = highlighted.replace(patterns.comment, '<span class="comment">$1</span>');
-  highlighted = highlighted.replace(patterns.string, '<span class="string">$&</span>');
-  highlighted = highlighted.replace(patterns.keyword, '<span class="keyword">$1</span>');
-  highlighted = highlighted.replace(patterns.builtin, '<span class="builtin">$1</span>');
-  highlighted = highlighted.replace(patterns.function, '<span class="function">$1</span>');
-  highlighted = highlighted.replace(patterns.number, '<span class="number">$1</span>');
-  
-  return highlighted;
-}
-
-// Create tool card HTML
-function createToolCard(toolName, status, content) {
-  const icons = {
-    'code_exec': { icon: '⚡', class: 'code' },
-    'code_check': { icon: '🔍', class: 'search' },
-    'file_read': { icon: '📄', class: 'file' },
-    'memory_query': { icon: '🧠', class: 'ai' },
-    'default': { icon: '🔧', class: 'ai' }
-  };
-  
-  const tool = icons[toolName] || icons['default'];
-  
-  return `
-    <div class="tool-card">
-      <div class="tool-header">
-        <div class="tool-icon ${tool.class}">${tool.icon}</div>
-        <span class="tool-name">${toolName}</span>
-        <span class="tool-status ${status}">${status === 'running' ? 'Running...' : 'Complete'}</span>
-      </div>
-      ${content ? `<div class="tool-output">${content}</div>` : ''}
-    </div>
-  `;
-}
-
-// Create code block with header and copy button
-function createCodeBlock(code, lang) {
-  const language = lang || 'code';
-  const displayLang = language.toUpperCase();
-  const codeId = 'code-' + Math.random().toString(36).substr(2, 9);
-  
-  return `
-    <div class="code-block-wrapper">
-      <div class="code-header">
-        <span class="code-lang">${displayLang}</span>
-        <button class="code-copy-btn" onclick="copyCodeBlock('${codeId}')">Copy</button>
-      </div>
-      <pre><code id="${codeId}">${highlightCode(code, lang)}</code></pre>
-    </div>
-  `;
-}
-
-// Copy code block function
-window.copyCodeBlock = function(codeId) {
-  const codeEl = document.getElementById(codeId);
-  if (codeEl) {
-    navigator.clipboard.writeText(codeEl.textContent);
-    const btn = codeEl.parentElement.previousElementSibling.querySelector('.code-copy-btn');
-    if (btn) {
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
-      setTimeout(() => {
-        btn.textContent = 'Copy';
-        btn.classList.remove('copied');
-      }, 2000);
-    }
-  }
-};
-
-// Enhanced fmt function with better markdown support
 function fmt(t) {
   let o = esc(t);
-  
   // Convert escaped newlines to actual newlines FIRST
   o = o.replace(/\\n/g, '\n');
   o = o.replace(/\\t/g, '\t');
-  
-  // Detect tool calls and format them specially
-  // Pattern: "Executing code_exec..." or similar
-  const toolPattern = /Executing (code_exec|code_check|file_read|memory_query)[\.\.\.]*(.*?)(?=\n\n|$)/g;
-  
-  // Process code blocks with language tags
-  o = o.replace(/```(\w*)\n?([\s\S]*?)```/g, function(match, lang, code) {
-    return createCodeBlock(code.trim(), lang);
-  });
-  
-  // Process inline code
+  o = o.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, l, c) => `<pre><code>${esc(c.trim())}</code></pre>`);
   o = o.replace(/`([^`]+)`/g, '<code>$1</code>');
-  
-  // Process bold
   o = o.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  
-  // Process italic
-  o = o.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-  
-  // Process headers
-  o = o.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-  o = o.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-  o = o.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-  
-  // Process blockquotes
-  o = o.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
-  
-  // Process horizontal rules
-  o = o.replace(/^---$/gm, '<hr>');
-  
-  // Process links
-  o = o.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-  
-  // Process lists
-  o = o.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
-  o = o.replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>');
-  
-  // Wrap consecutive li elements in ul
-  o = o.replace(/(<li>[\s\S]*?<\/li>)+/g, '<ul>$&</ul>');
-  
-  // Convert newlines to <br> (but preserve structure)
   o = o.replace(/\n/g, '<br>');
-  
-  // Clean up extra breaks
-  o = o.replace(/<br><br><br>/g, '<br><br>');
-  o = o.replace(/<br><\/ul>/g, '</ul>');
-  o = o.replace(/<ul><br>/g, '<ul>');
-  
   return o;
 }
 
@@ -2878,11 +2299,8 @@ async function sendMsg() {
   sendBtn.textContent = '...';
 
   const aiEl = addMsg('ai', '');
-  const bubbleEl = aiEl.querySelector('.msg-bubble') || aiEl;
-  
-  // Show thinking animation
+  const bubbleEl = aiEl;
   showTypingIndicator();
-  bubbleEl.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div>';
 
   // Create conversation if needed
   if (!currentConversationId) {
@@ -2921,7 +2339,6 @@ async function sendMsg() {
     const reader = r.body.getReader();
     const dec = new TextDecoder();
     let full = '';
-    let isThinking = true;
     bubbleEl.innerHTML = '';
 
     while (true) {
@@ -2935,31 +2352,15 @@ async function sendMsg() {
           try {
             const p = JSON.parse(raw);
             if (p.content) {
-              // Remove thinking indicator on first content
-              if (isThinking) {
-                hideTypingIndicator();
-                isThinking = false;
-              }
-              
               full += p.content;
-              // Add streaming cursor for real-time effect
-              bubbleEl.innerHTML = fmt(full) + '<span class="typing-cursor"></span>';
-              
-              // Smooth scroll to bottom
-              bubbleEl.scrollIntoView({ behavior: 'smooth', block: 'end' });
+              bubbleEl.innerHTML = fmt(full);
             }
           } catch {}
         }
       }
     }
-    
-    // Remove cursor after streaming completes
-    bubbleEl.innerHTML = fmt(full);
-    
+
     conversation.push({ role: 'assistant', content: full });
-    
-    // Add copy button after streaming
-    addCopyBtn(bubbleEl, full);
     
     // Refresh conversation list
     loadConversations();
@@ -2986,92 +2387,26 @@ function addMsg(role, txt) {
   d.className = 'msg ' + role;
   const time = getTimestamp();
   
-  // Create message meta (timestamp)
-  const meta = document.createElement('div');
-  meta.className = 'msg-meta';
-  meta.innerHTML = `<span class="msg-timestamp">${time}</span>`;
-  
-  // Create bubble with content
+  // Create bubble with timestamp
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
   bubble.innerHTML = txt ? fmt(txt) : '';
   
+  // Add timestamp
+  const meta = document.createElement('div');
+  meta.className = 'msg-meta';
+  meta.innerHTML = `<span class="msg-timestamp">${time}</span>`;
+  
+  // Add copy button for assistant messages
+  if (role === 'ai' && txt) {
+    addCopyBtn(bubble, txt);
+  }
+  
   d.appendChild(meta);
   d.appendChild(bubble);
-  
-  // Add feedback actions for AI messages
-  if (role === 'ai') {
-    const actions = document.createElement('div');
-    actions.className = 'msg-actions';
-    actions.innerHTML = `
-      <button class="action-btn up" onclick="submitFeedback(this, 'chosen')\" title=\"Good response\">👍</button>
-      <button class="action-btn down" onclick="submitFeedback(this, 'rejected')\" title=\"Bad response\">👎</button>
-      <button class="action-btn" onclick="copyToClipboard(this)\" title=\"Copy message\">📋</button>
-    `;
-    d.appendChild(actions);
-  }
-  
   messagesEl.appendChild(d);
   
-  // Scroll to bottom
-  d.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  
   return d;
-}
-
-// Submit feedback for DPO
-async function submitFeedback(btn, type) {
-  const msgEl = btn.closest('.msg');
-  const bubble = msgEl.querySelector('.msg-bubble');
-  const content = bubble.innerText;
-  
-  // Find the user prompt (previous user message)
-  let prompt = "";
-  const allMsgs = Array.from(document.querySelectorAll('.msg'));
-  const idx = allMsgs.indexOf(msgEl);
-  if (idx > 0 && allMsgs[idx-1].classList.contains('user')) {
-    prompt = allMsgs[idx-1].querySelector('.msg-bubble').innerText;
-  }
-  
-  if (!prompt) return;
-  
-  // Visual feedback
-  const row = btn.parentElement;
-  row.querySelectorAll('.action-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  
-  try {
-    const payload = {
-      prompt: prompt,
-      category: 'user_feedback'
-    };
-    
-    if (type === 'chosen') {
-      payload.chosen = content;
-      payload.rejected = ""; // User liked this one
-    } else {
-      payload.chosen = ""; // Placeholder for later replacement
-      payload.rejected = content;
-    }
-    
-    await fetch('/api/preference', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    
-    toast('Feedback saved for DPO alignment', 'success');
-  } catch (e) {
-    console.error('Feedback failed:', e);
-  }
-}
-
-function copyToClipboard(btn) {
-  const bubble = btn.closest('.msg').querySelector('.msg-bubble');
-  navigator.clipboard.writeText(bubble.innerText);
-  const oldText = btn.innerHTML;
-  btn.innerHTML = '✓';
-  setTimeout(() => btn.innerHTML = oldText, 2000);
 }
 
 // Files

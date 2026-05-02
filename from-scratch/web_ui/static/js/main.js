@@ -39,6 +39,9 @@ function escHtml(text) { return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 function fmt(text) {
   let out = escHtml(text);
+  // Convert escaped newlines to actual newlines FIRST
+  out = out.replace(/\\n/g, '\n');
+  out = out.replace(/\\t/g, '\t');
   out = out.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, l, c) => `<pre><code class="lang-${l}">${c.trim()}</code></pre>`);
   out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
   out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
@@ -741,15 +744,24 @@ async function sendMessage() {
       for (const line of lines) {
         if (line.startsWith('data: ')) {
           const raw = line.slice(6).trim();
-          if (raw === '[DONE]') { isStreaming = false; break; }
+          if (raw === '[DONE]') { 
+            isStreaming = false; 
+            break; 
+          }
           try {
             const parsed = JSON.parse(raw);
             if (parsed.content) {
-              full += parsed.content;
+              // Unescape the content - handle double-escaped strings
+              let content = parsed.content;
+              // If content has escaped backslashes, unescape them
+              content = content.replace(/\\\\n/g, '\\n');
+              full += content;
               bubbleEl.innerHTML = fmt(full) + copyBtn();
               scrollBottom();
             }
-          } catch {}
+          } catch (e) {
+            console.error('Parse error:', e, 'for:', raw.substring(0, 50));
+          }
         }
       }
     }
