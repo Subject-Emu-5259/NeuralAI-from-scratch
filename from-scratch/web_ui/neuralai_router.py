@@ -47,14 +47,14 @@ TOOL_PATTERNS: Dict[str, List[str]] = {
         "list files", "show files", "search files", "find files",
         "file operations", "open file", "edit file",
         "list directory", "show directory", "what files",
-        "search for", "find in files"
+        "search for", "find in files", "files"
     ],
     
     "web_fetcher": [
         "fetch url", "get url", "fetch this url", "get content from",
         "scrape this page", "scrape url", "fetch page",
         "get webpage", "fetch website", "extract from url",
-        "read website", "download page", "get page content"
+        "read website", "download page", "get page content", "fetch"
     ],
     
     "database": [
@@ -165,8 +165,6 @@ def extract_tool_params(msg: str, tool: str) -> Dict[str, str]:
             language = "javascript"
         
         # Extract code from message - look for code patterns
-        import re
-        
         # Try to find code in backticks first
         code_match = re.search(r'```(?:python|javascript|js)?\s*([\s\S]*?)```', msg)
         if code_match:
@@ -219,9 +217,14 @@ def extract_tool_params(msg: str, tool: str) -> Dict[str, str]:
         return {"action": "status"}
     
     if tool == "file_manager":
-        # Extract file path if mentioned
-        # This is simplistic - could be improved
-        return {"query": msg}
+        # Extract file path or query
+        query = msg
+        for pattern in TOOL_PATTERNS["file_manager"]:
+            if pattern in lower:
+                idx = lower.find(pattern)
+                query = msg[idx + len(pattern):].strip()
+                break
+        return {"query": query or msg}
     
     if tool == "database":
         # Extract SQL if present

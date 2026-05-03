@@ -19,7 +19,10 @@ import json
 import time
 
 # Import tools
-sys.path.append(str(Path(__file__).parent.parent))
+PROJECT_ROOT = str(Path(__file__).resolve().parent.parent.parent)
+if PROJECT_ROOT not in sys.path:
+    sys.path.append(PROJECT_ROOT)
+
 try:
     from tools.code_sandbox import CodeSandbox
     from tools.file_manager import FileManager
@@ -32,7 +35,8 @@ try:
     web_fetcher = WebFetcher()
     db_connector = DatabaseConnector()
     git_assistant = GitAssistant()
-except ImportError:
+except ImportError as e:
+    print(f"[NeuralAI Engine] Import Error: {e}")
     code_sandbox = None
     file_manager = None
     web_fetcher = None
@@ -62,7 +66,7 @@ def load_local_model():
         from transformers import AutoModelForCausalLM, AutoTokenizer
         
         base_model = "HuggingFaceTB/SmolLM2-360M-Instruct"
-        adapter_path = Path(__file__).parent.parent.parent / "checkpoints" / "final_model"
+        adapter_path = Path(__file__).resolve().parent.parent.parent / "checkpoints" / "final_model"
         
         tokenizer = AutoTokenizer.from_pretrained(base_model)
         tokenizer.pad_token = tokenizer.eos_token
@@ -91,7 +95,7 @@ def load_local_model():
 class LocalModel:
     """Local model wrapper."""
     
-    def generate(self, prompt: str, max_new_tokens: int = 256, stream: bool = True) -> AsyncGenerator[str, None]:
+    async def generate(self, prompt: str, max_new_tokens: int = 256, stream: bool = True) -> AsyncGenerator[str, None]:
         """Generate text from local model."""
         load_local_model()
         
@@ -160,7 +164,7 @@ def neuralai_route(msg: str) -> Tuple[str, str | None]:
 
 async def neuralai_local(prompt: str) -> AsyncGenerator[str, None]:
     """Generate response using local model."""
-    for token in local_model.generate(prompt, stream=True):
+    async for token in local_model.generate(prompt, stream=True):
         yield token
 
 
@@ -304,6 +308,46 @@ async def neuralai_tool_call(tool: str, msg: str) -> AsyncGenerator[str, None]:
             yield "```\n"
         return
 
+    if tool == "code_gen":
+        if not code_sandbox:
+            yield "[Error] Code sandbox not available."
+            return
+            
+        yield "[NeuralAI] Writing and preparing code execution...\n\n"
+        
+        gen_prompt = f"Write a clean, single-file Python script to solve this: {msg}. Return ONLY the code inside a ```python ... ``` block."
+        
+        code_text = ""
+        async for chunk in local_model.generate(gen_prompt, max_new_tokens=512, stream=True):
+            code_text += chunk
+            
+        import re
+        code_match = re.search(r'```python\s*([\s\S]*?)```', code_text, re.IGNORECASE)
+        if not code_match:
+            code_match = re.search(r'([\s\S]+)', code_text)
+            
+        if code_match:
+            extracted_code = code_match.group(1).strip()
+            yield "### Generated Code:\n"
+            yield f"```python\n{extracted_code}\n```\n\n"
+            
+            yield "[Sandbox] Executing...\n\n"
+            import asyncio
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(None, code_sandbox.run_python, extracted_code)
+            
+            if result["success"]:
+                yield "### Output:\n"
+                yield "```\n"
+                yield result["output"] or "(No output)"
+                yield "\n```\n"
+            else:
+                yield "### Execution Error:\n"
+                yield f"```\n{result['error']}\n```\n"
+        else:
+            yield f"[Error] Could not generate executable code: {code_text}"
+        return
+
     if tool == "file_manager":
         if not file_manager:
             yield "[Error] File manager not available."
@@ -345,7 +389,7 @@ async def neuralai_tool_call(tool: str, msg: str) -> AsyncGenerator[str, None]:
         
         if result["success"]:
             yield f"### {result['title']}\n\n"
-            yield result["content"][:2000] + ("..." if len(result["content"]) > 2000 else "")
+            yield result["text"][:2000] + ("..." if len(result["text"]) > 2000 else "")
         else:
             yield f"Error fetching URL: {result['error']}"
         return
@@ -355,24 +399,19 @@ async def neuralai_tool_call(tool: str, msg: str) -> AsyncGenerator[str, None]:
             yield "[Error] Database connector not available."
             return
             
-        # Extract query from message
         query_text = params.get("query", msg)
         yield f"[Database] Processing request: {query_text[:100]}...\n\n"
         
         import asyncio
         loop = asyncio.get_event_loop()
-        
-        # Connect to NeuralAI's own DB by default
         db_path = "/home/workspace/Projects/NeuralAI/from-scratch/web_ui/neuralai.db"
         await loop.run_in_executor(None, db_connector.connect_sqlite, db_path, "neuralai")
         
-        # Try to find a SQL query in backticks
         import re
         sql_match = re.search(r'```sql\s*([\s\S]*?)```', msg, re.IGNORECASE)
         sql = sql_match.group(1).strip() if sql_match else None
         
         if not sql:
-            # Look for common patterns
             lower = msg.lower()
             if "show tables" in lower or "list tables" in lower:
                 result = await loop.run_in_executor(None, db_connector.tables)
@@ -384,7 +423,6 @@ async def neuralai_tool_call(tool: str, msg: str) -> AsyncGenerator[str, None]:
                     yield f"Error: {result['error']}"
                 return
             elif "schema" in lower:
-                # Find table name if specified
                 table_name = None
                 words = lower.split()
                 if "table" in words:
@@ -408,7 +446,6 @@ async def neuralai_tool_call(tool: str, msg: str) -> AsyncGenerator[str, None]:
                 yield "I can query your database. Please provide a SQL command inside a ```sql ... ``` block.\n"
                 return
 
-        # Execute provided SQL
         result = await loop.run_in_executor(None, db_connector.query, sql)
         if result["success"]:
             if result["rows"]:
