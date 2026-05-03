@@ -691,6 +691,15 @@ def privacy():
 
 @app.route("/api/status", methods=["GET"])
 def status():
+    # Check if Uplink Gateway (port 8000) is healthy
+    uplink_status = "offline"
+    try:
+        r = requests.get("http://localhost:8000/health", timeout=1)
+        if r.status_code == 200:
+            uplink_status = "connected"
+    except:
+        pass
+
     return jsonify(
         {
             "model": MODEL_NAME,
@@ -698,7 +707,7 @@ def status():
             "device": model_device(),
             "version": VERSION,
             "rag": True,
-            "uplink": "connected" if requests is not None else "offline",
+            "uplink": uplink_status,
             "indexed_files": len(INDEXED_FILES),
             "model_error": model_error,
             "features": ["memory", "rules", "settings", "conversations"],

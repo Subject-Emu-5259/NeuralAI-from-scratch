@@ -150,7 +150,12 @@ async def list_tasks(request):
     return web.json_response({"tasks": [t.to_dict() for t in tasks], "count": len(tasks)})
 
 async def agent_register(request):
-    body = await request.json()
+    try:
+        body = await request.json()
+    except Exception as e:
+        print(f"Error parsing registration JSON: {e}")
+        return web.json_response({"error": "Invalid JSON"}, status=400)
+        
     agent_id = body.get("agent_id") or str(uuid.uuid4())
     port = body.get("port", 7100)
     name = body.get("name", "unknown")

@@ -13,7 +13,31 @@ from typing import AsyncGenerator, Dict, Any, List, Tuple
 import aiohttp
 import asyncio.subprocess as asp
 import os
+import sys
 from pathlib import Path
+import json
+import time
+
+# Import tools
+sys.path.append(str(Path(__file__).parent.parent))
+try:
+    from tools.code_sandbox import CodeSandbox
+    from tools.file_manager import FileManager
+    from tools.web_fetcher import WebFetcher
+    from tools.db_connector import DatabaseConnector
+    from tools.git_assistant import GitAssistant
+    
+    code_sandbox = CodeSandbox()
+    file_manager = FileManager()
+    web_fetcher = WebFetcher()
+    db_connector = DatabaseConnector()
+    git_assistant = GitAssistant()
+except ImportError:
+    code_sandbox = None
+    file_manager = None
+    web_fetcher = None
+    db_connector = None
+    git_assistant = None
 
 # Ports
 UPLINK_BASE = "http://localhost"
@@ -235,16 +259,223 @@ async def terminal_execute(msg: str) -> AsyncGenerator[str, None]:
 
 async def neuralai_tool_call(tool: str, msg: str) -> AsyncGenerator[str, None]:
     """
-    Handle tool calls.
+    Handle tool calls using the specialized tool classes.
     """
+    from neuralai_router import extract_tool_params
+    params = extract_tool_params(msg, tool)
+    
     if tool == "terminal":
         yield "```bash\n"
         async for line in terminal_execute(msg):
             yield line
         yield "```\n"
         return
-    
-    yield f"[TOOL] Unknown tool '{tool}'"
+        
+    if tool == "code_exec":
+        if not code_sandbox:
+            yield "[Error] Code sandbox not available."
+            return
+        
+        language = params.get("language", "python")
+        code = params.get("code", "")
+        
+        if not code:
+            yield "[Error] No code found to execute."
+            return
+            
+        yield f"[Sandbox] Running {language} code...\n\n"
+        
+        import asyncio
+        loop = asyncio.get_event_loop()
+        if language == "python":
+            result = await loop.run_in_executor(None, code_sandbox.run_python, code)
+        else:
+            result = await loop.run_in_executor(None, code_sandbox.run_javascript, code)
+            
+        if result["success"]:
+            yield "```\n"
+            yield result["output"]
+            yield "\n```\n"
+        else:
+            yield "```\n"
+            yield f"Error: {result['error']}\n"
+            if result["output"]:
+                yield f"Output: {result['output']}\n"
+            yield "```\n"
+        return
+
+    if tool == "file_manager":
+        if not file_manager:
+            yield "[Error] File manager not available."
+            return
+            
+        query = params.get("query", "")
+        yield f"[FileManager] Searching for: {query}...\n\n"
+        
+        import asyncio
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(None, file_manager.search, query)
+        
+        if result["success"]:
+            if not result["results"]:
+                yield f"No files found matching '{query}'."
+            else:
+                yield f"Found {result['total']} results:\n\n"
+                for r in result["results"][:10]:
+                    yield f"- {r['path']} (line {r['line']}): {r['match']}\n"
+        else:
+            yield f"Error searching files: {result['error']}"
+        return
+
+    if tool == "web_fetcher":
+        if not web_fetcher:
+            yield "[Error] Web fetcher not available."
+            return
+            
+        url = params.get("url", "")
+        if not url:
+            yield "[Error] No URL provided."
+            return
+            
+        yield f"[WebFetcher] Fetching {url}...\n\n"
+        
+        import asyncio
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(None, web_fetcher.fetch, url)
+        
+        if result["success"]:
+            yield f"### {result['title']}\n\n"
+            yield result["content"][:2000] + ("..." if len(result["content"]) > 2000 else "")
+        else:
+            yield f"Error fetching URL: {result['error']}"
+        return
+
+    if tool == "database":
+        if not db_connector:
+            yield "[Error] Database connector not available."
+            return
+            
+        # Extract query from message
+        query_text = params.get("query", msg)
+        yield f"[Database] Processing request: {query_text[:100]}...\n\n"
+        
+        import asyncio
+        loop = asyncio.get_event_loop()
+        
+        # Connect to NeuralAI's own DB by default
+        db_path = "/home/workspace/Projects/NeuralAI/from-scratch/web_ui/neuralai.db"
+        await loop.run_in_executor(None, db_connector.connect_sqlite, db_path, "neuralai")
+        
+        # Try to find a SQL query in backticks
+        import re
+        sql_match = re.search(r'```sql\s*([\s\S]*?)```', msg, re.IGNORECASE)
+        sql = sql_match.group(1).strip() if sql_match else None
+        
+        if not sql:
+            # Look for common patterns
+            lower = msg.lower()
+            if "show tables" in lower or "list tables" in lower:
+                result = await loop.run_in_executor(None, db_connector.tables)
+                if result["success"]:
+                    yield f"Tables in NeuralAI database:\n"
+                    for t in result["tables"]:
+                        yield f"- {t}\n"
+                else:
+                    yield f"Error: {result['error']}"
+                return
+            elif "schema" in lower:
+                # Find table name if specified
+                table_name = None
+                words = lower.split()
+                if "table" in words:
+                    idx = words.index("table")
+                    if idx + 1 < len(words):
+                        table_name = words[idx+1].strip('?,.;')
+                
+                result = await loop.run_in_executor(None, db_connector.schema, table_name)
+                if result["success"]:
+                    for table in result["tables"]:
+                        yield f"### Table: {table['name']}\n"
+                        yield "| Column | Type | Nullable | PK |\n"
+                        yield "| --- | --- | --- | --- |\n"
+                        for col in table["columns"]:
+                            yield f"| {col['name']} | {col['type']} | {'Yes' if col['nullable'] else 'No'} | {'✓' if col['primary_key'] else ''} |\n"
+                        yield "\n"
+                else:
+                    yield f"Error: {result['error']}"
+                return
+            else:
+                yield "I can query your database. Please provide a SQL command inside a ```sql ... ``` block.\n"
+                return
+
+        # Execute provided SQL
+        result = await loop.run_in_executor(None, db_connector.query, sql)
+        if result["success"]:
+            if result["rows"]:
+                yield f"Query result ({result['row_count']} rows):\n\n"
+                cols = result["columns"]
+                yield "| " + " | ".join(cols) + " |\n"
+                yield "| " + " | ".join(["---"] * len(cols)) + " |\n"
+                for row in result["rows"][:20]:
+                    yield "| " + " | ".join([str(row[c]) for c in cols]) + " |\n"
+            else:
+                yield f"Query successful. Rows affected: {result['row_count']}"
+        else:
+            yield f"SQL Error: {result['error']}"
+        return
+
+    if tool == "git":
+        if not git_assistant:
+            yield "[Error] Git assistant not available."
+            return
+            
+        action = params.get("action", "status")
+        yield f"[Git] Executing: {action}...\n\n"
+        
+        import asyncio
+        loop = asyncio.get_event_loop()
+        git_assistant.repo_path = Path("/home/workspace/Projects/NeuralAI")
+        
+        if action == "status":
+            result = await loop.run_in_executor(None, git_assistant.status)
+            if result["success"]:
+                yield f"**Branch**: {result['branch']}\n"
+                if result["staged"]: yield f"**Staged**: {', '.join(result['staged'])}\n"
+                if result["modified"]: yield f"**Modified**: {', '.join(result['modified'])}\n"
+                if result["untracked"]: yield f"**Untracked**: {', '.join(result['untracked'])}\n"
+                if not (result["staged"] or result["modified"] or result["untracked"]):
+                    yield "Working directory clean."
+            else:
+                yield f"Error: {result['error']}"
+        elif action == "log":
+            result = await loop.run_in_executor(None, git_assistant.log, 5)
+            if result["success"]:
+                for c in result["commits"]:
+                    yield f"- `{c['hash']}` **{c['message']}** ({c['author']}, {c['date']})\n"
+            else:
+                yield f"Error: {result['error']}"
+        elif action == "diff":
+            result = await loop.run_in_executor(None, git_assistant.diff)
+            if result["success"]:
+                if result["diff"]:
+                    yield "```diff\n"
+                    yield result["diff"][:2000] + ("..." if len(result["diff"]) > 2000 else "")
+                    yield "\n```"
+                else:
+                    yield "No changes to show."
+            else:
+                yield f"Error: {result['error']}"
+        else:
+            result = await loop.run_in_executor(None, git_assistant._run_git, [action])
+            if result["success"]:
+                yield "```\n"
+                yield result["output"][:2000]
+                yield "\n```"
+            else:
+                yield f"Git Error: {result['error']}"
+        return
+
+    yield f"[TOOL] Tool '{tool}' integration pending."
 
 
 async def stream_text(text: str) -> AsyncGenerator[str, None]:
