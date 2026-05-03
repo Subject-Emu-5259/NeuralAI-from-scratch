@@ -11,14 +11,26 @@ from dataclasses import dataclass
 from typing import List, Dict
 
 import torch
+# Add Torch XLA imports
+try:
+    import torch_xla
+    import torch_xla.core.xla_model as xm
+    HAS_XLA = True
+except ImportError:
+    HAS_XLA = False
+
 from datasets import Dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel, LoraConfig, get_peft_model
 from trl import DPOTrainer, DPOConfig
 
 # Ensure TPU compatibility
-# For v5e-1, we use a single TPU core
-os.environ["ACCELERATE_USE_TPU"] = "true"
+if HAS_XLA:
+    os.environ["ACCELERATE_USE_TPU"] = "true"
+    # Registration of XLA device can fix 'module torch has no attribute xla'
+    print(f"TPU detected: {xm.xla_device()}")
+else:
+    print("TPU (torch_xla) not detected. Ensure you are running on a TPU runtime.")
 
 @dataclass
 class TPUConfig:
