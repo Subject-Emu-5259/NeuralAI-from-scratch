@@ -15,6 +15,9 @@ import torch
 try:
     import torch_xla
     import torch_xla.core.xla_model as xm
+    # Monkey-patch torch.xla to avoid AttributeError in checkpointing
+    if not hasattr(torch, "xla"):
+        torch.xla = torch_xla
     HAS_XLA = True
 except ImportError:
     HAS_XLA = False
